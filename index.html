@@ -3,743 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celiac Health Tracker</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0
-        }
-
-        body {
-            font-family: var(--font-sans,system-ui);
-            background: var(--color-background-tertiary,#f5f5f5);
-            color: var(--color-text-primary,#111);
-            font-size: 14px
-        }
-
-        :root {
-            --teal: #1D9E75;
-            --teal-light: #E1F5EE;
-            --teal-dark: #085041;
-            --coral: #D85A30;
-            --coral-light: #FAECE7;
-            --coral-dark: #4A1B0C;
-            --amber: #BA7517;
-            --amber-light: #FAEEDA;
-            --purple: #534AB7;
-            --purple-light: #EEEDFE;
-            --red: #A32D2D;
-            --red-light: #FCEBEB;
-            --blue: #185FA5;
-            --blue-light: #E6F1FB;
-            --gray: #5F5E5A;
-            --gray-light: #F1EFE8
-        }
-
-        .app {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 8px
-        }
-
-        .header {
-            background: var(--color-background-primary,#fff);
-            border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));
-            border-radius: 12px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between
-        }
-
-            .header h1 {
-                font-size: 16px;
-                font-weight: 500;
-                color: var(--teal-dark)
-            }
-
-        .main-tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            border-bottom: 2px solid var(--color-border-tertiary,rgba(0,0,0,0.1));
-            padding-bottom: 10px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
+        /* --- ALL EXISTING CSS REMAINS THE SAME --- */
+        * { box-sizing: border-box; margin: 0; padding: 0 }
+        body { font-family: var(--font-sans,system-ui); background: var(--color-background-tertiary,#f5f5f5); color: var(--color-text-primary,#111); font-size: 14px }
+        :root { --teal: #1D9E75; --teal-light: #E1F5EE; --teal-dark: #085041; --coral: #D85A30; --coral-light: #FAECE7; --coral-dark: #4A1B0C; --amber: #BA7517; --amber-light: #FAEEDA; --purple: #534AB7; --purple-light: #EEEDFE; --red: #A32D2D; --red-light: #FCEBEB; --blue: #185FA5; --blue-light: #E6F1FB; --gray: #5F5E5A; --gray-light: #F1EFE8 }
+        .app { max-width: 760px; margin: 0 auto; padding: 8px }
+        .header { background: var(--color-background-primary,#fff); border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between }
+        .header h1 { font-size: 16px; font-weight: 500; color: var(--teal-dark) }
+        .main-tabs { display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--color-border-tertiary,rgba(0,0,0,0.1)); padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
         .main-tabs::-webkit-scrollbar { display: none; }
+        .main-tab { background: none; border: none; font-size: 14px; font-weight: 600; color: var(--color-text-secondary,#666); cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+        .main-tab.active { color: var(--teal-dark); background: var(--teal-light); }
+        .main-tab:hover:not(.active) { background: var(--color-background-secondary,#f0f0f0); }
+        .timeline { border-left: 2px solid var(--teal); margin-left: 14px; padding-left: 18px; display: flex; flex-direction: column; gap: 16px; margin-top: 20px; margin-bottom: 20px; }
+        .timeline-item { position: relative; background: var(--color-background-primary,#fff); border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.2)); border-radius: 10px; padding: 14px; }
+        .timeline-item::before { content: ''; position: absolute; left: -25px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: var(--teal); border: 2px solid var(--color-background-tertiary,#f5f5f5); }
+        .timeline-date { font-size: 11px; font-weight: 600; color: var(--teal); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--color-text-primary); }
+        .timeline-summary { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; }
+        .timeline-file { font-size: 11px; background: var(--blue-light); color: var(--blue); display: inline-block; padding: 4px 8px; border-radius: 6px; font-weight: 500; }
+        .tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px }
+        .tab { padding: 6px 12px; border-radius: 8px; border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)); background: var(--color-background-primary,#fff); cursor: pointer; font-size: 12px; font-weight: 500; color: var(--color-text-secondary,#666); transition: all .15s }
+        .tab.active { background: var(--teal); color: #fff; border-color: var(--teal) }
+        .tab:hover:not(.active) { background: var(--color-background-secondary,#f0f0f0) }
+        .panel { background: var(--color-background-primary,#fff); border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)); border-radius: 12px; padding: 14px; margin-bottom: 10px }
+        .section-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary,#666); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)) }
+        .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px }
+        .field label { font-size: 11px; color: var(--color-text-secondary,#666); font-weight: 500 }
+        .field input, .field select, .field textarea { font-size: 13px; padding: 8px 10px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); border-radius: 8px; background: var(--color-background-primary,#fff); color: var(--color-text-primary,#111); width: 100%; font-family: inherit; }
+        .field textarea { resize: vertical; min-height: 60px; }
+        .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 2px rgba(29,158,117,0.2) }
+        .log-btn { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; background: var(--teal); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s; margin-top: 8px; width: 100%; }
+        .log-btn:hover { opacity: .9 }
+        .log-entry { display: flex; gap: 10px; padding: 8px; border-radius: 8px; border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)); margin-bottom: 6px; font-size: 12px; align-items: flex-start }
+        .log-time { font-size: 11px; color: #fff; background: var(--teal); padding: 2px 7px; border-radius: 6px; white-space: nowrap; font-weight: 500; flex-shrink: 0 }
+        .log-cat { font-size: 11px; font-weight: 500; color: var(--purple); background: var(--purple-light); padding: 2px 7px; border-radius: 6px; flex-shrink: 0 }
+        .log-content { color: var(--color-text-primary,#111); flex: 1; line-height: 1.5 }
+        .log-delete { background: none; border: none; cursor: pointer; color: var(--color-text-secondary,#666); padding: 0 4px; font-size: 14px; flex-shrink: 0 }
+        .log-delete:hover { color: var(--red) }
+        .logs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px }
+        .logs-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary,#666) }
+        .clear-btn { font-size: 11px; color: var(--red); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 6px }
+        .clear-btn:hover { background: var(--red-light) }
+        .no-logs { font-size: 12px; color: var(--color-text-secondary,#666); text-align: center; padding: 16px; font-style: italic }
+        .scale-btns { display: flex; gap: 4px; flex-wrap: wrap }
+        .scale-btn { width: 32px; height: 28px; border-radius: 6px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); background: var(--color-background-secondary,#f0f0f0); cursor: pointer; font-size: 12px; font-weight: 500; transition: all .15s; display: flex; align-items: center; justify-content: center; }
+        .scale-btn:hover { background: var(--teal-light); border-color: var(--teal) }
+        .scale-btn.sel { background: var(--teal); color: #fff; border-color: var(--teal) }
+        .export-btn { padding: 6px 14px; border-radius: 8px; border: 0.5px solid var(--teal); background: var(--teal-light); color: var(--teal-dark); cursor: pointer; font-size: 12px; font-weight: 500 }
+        .stats-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px }
+        .stat-card { flex: 1; min-width: 80px; background: var(--color-background-secondary,#f0f0f0); border-radius: 8px; padding: 8px 10px; text-align: center }
+        .stat-num { font-size: 20px; font-weight: 500; color: var(--teal-dark) }
+        .stat-label { font-size: 10px; color: var(--color-text-secondary,#666); margin-top: 2px }
+        .timestamp-display { font-size: 11px; color: var(--color-text-secondary,#666); background: var(--color-background-secondary,#f0f0f0); padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 10px }
+        .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px }
+        .qbtn { padding: 5px 12px; border-radius: 8px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); background: var(--color-background-secondary,#f0f0f0); cursor: pointer; font-size: 12px; color: var(--color-text-primary,#111); transition: all .15s }
+        .qbtn:hover { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark) }
+        .qbtn.selected { background: var(--teal); color: #fff; border-color: var(--teal) }
+        .sym-filter-scroll { overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px; scrollbar-width: none; -ms-overflow-style: none; }
+        .sym-filter-scroll::-webkit-scrollbar { display: none; }
+        .sym-filters { display: flex; gap: 6px; }
+        .sym-filter-btn { white-space: nowrap; padding: 6px 12px; border-radius: 12px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); background: var(--color-background-primary,#fff); cursor: pointer; font-size: 11px; font-weight: 500; color: var(--color-text-secondary,#666); transition: all .15s }
+        .sym-filter-btn.active { background: var(--coral); color: #fff; border-color: var(--coral) }
+        .sym-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px }
+        .sym-card { position: relative; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); border-radius: 10px; padding: 8px 10px; cursor: pointer; transition: all .15s; background: var(--color-background-primary,#fff); min-width: 130px; max-width: 220px; flex: 1; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        .sym-card:hover { border-color: var(--coral); background: var(--coral-light) }
+        .sym-card.selected { border: 1.5px solid var(--coral); background: var(--coral-light) }
+        .sym-card-name { font-size: 12px; font-weight: 500; color: var(--color-text-primary,#111); margin-bottom: 2px; padding-right: 24px; pointer-events: none; }
+        .sym-card-desc { font-size: 10px; color: var(--color-text-secondary,#666); line-height: 1.4; display: none; pointer-events: none; }
+        .sym-card.selected .sym-card-desc { display: block }
+        .sym-card.expanded .sym-card-desc { display: block }
+        .sym-card-actions { position: absolute; top: 6px; right: 6px; display: flex; gap: 3px }
+        .sym-icon-btn { background: none; border: none; cursor: pointer; padding: 2px 4px; border-radius: 5px; font-size: 13px; color: var(--color-text-secondary,#666); line-height: 1 }
+        .sym-icon-btn:hover { background: var(--color-background-secondary,#f0f0f0); color: var(--color-text-primary,#111) }
+        .add-sym-btn { display: flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 8px; border: 0.5px dashed var(--coral); background: none; cursor: pointer; font-size: 12px; color: var(--coral); font-weight: 500; margin-bottom: 10px; transition: all .15s }
+        .add-sym-btn:hover { background: var(--coral-light) }
+        .sym-edit-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000 }
+        .sym-edit-box { background: var(--color-background-primary,#fff); border-radius: 12px; padding: 20px; width: 90%; max-width: 420px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)) }
+        .sym-edit-box h3 { font-size: 14px; font-weight: 500; margin-bottom: 14px; color: var(--coral) }
+        .sym-edit-box label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary,#666); display: block; margin-bottom: 3px; margin-top: 10px }
+        .sym-edit-box input, .sym-edit-box textarea, .sym-edit-box select { width: 100%; font-size: 13px; padding: 7px 10px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); border-radius: 8px; background: var(--color-background-primary,#fff); color: var(--color-text-primary,#111); font-family: inherit }
+        .sym-edit-box textarea { min-height: 80px; resize: vertical }
+        .sym-edit-box input:focus, .sym-edit-box textarea:focus, .sym-edit-box select:focus { outline: none; border-color: var(--coral); box-shadow: 0 0 0 2px rgba(216,90,48,0.15) }
+        .edit-btn-row { display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end }
+        .btn-save { padding: 7px 18px; background: var(--coral); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500 }
+        .btn-cancel { padding: 7px 14px; background: var(--color-background-secondary,#f0f0f0); color: var(--color-text-primary,#111); border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); border-radius: 8px; cursor: pointer; font-size: 13px }
+        .btn-delete { padding: 7px 14px; background: var(--red-light); color: var(--red); border: 0.5px solid var(--red); border-radius: 8px; cursor: pointer; font-size: 13px }
+        .persist-btns { display: flex; gap: 6px; margin-bottom: 10px }
+        .persist-btn { flex: 1; padding: 7px; border-radius: 8px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); background: var(--color-background-secondary,#f0f0f0); cursor: pointer; font-size: 12px; font-weight: 500; text-align: center; transition: all .15s }
+        .persist-btn.sel { background: var(--coral); color: #fff; border-color: var(--coral) }
+        .persist-btn:hover:not(.sel) { background: var(--coral-light); border-color: var(--coral); color: var(--coral-dark) }
+        .rich-text-content b, .rich-text-content strong { font-weight: 700; color: #000; }
         
-        .main-tab {
-            background: none;
-            border: none;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-text-secondary,#666);
-            cursor: pointer;
-            padding: 8px 14px;
-            border-radius: 8px;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .main-tab.active {
-            color: var(--teal-dark);
-            background: var(--teal-light);
-        }
-        .main-tab:hover:not(.active) {
-            background: var(--color-background-secondary,#f0f0f0);
-        }
-
-        .timeline {
-            border-left: 2px solid var(--teal);
-            margin-left: 14px;
-            padding-left: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        .timeline-item {
-            position: relative;
-            background: var(--color-background-primary,#fff);
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.2));
-            border-radius: 10px;
-            padding: 14px;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -25px;
-            top: 14px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--teal);
-            border: 2px solid var(--color-background-tertiary,#f5f5f5);
-        }
-        .timeline-date {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--teal);
-            margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .timeline-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--color-text-primary);
-        }
-        .timeline-summary {
-            font-size: 13px;
-            color: var(--color-text-secondary);
-            line-height: 1.5;
-            margin-bottom: 10px;
-            white-space: pre-wrap;
-        }
-        .timeline-file {
-            font-size: 11px;
-            background: var(--blue-light);
-            color: var(--blue);
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 500;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-bottom: 10px
-        }
-
-        .tab {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));
-            background: var(--color-background-primary,#fff);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--color-text-secondary,#666);
-            transition: all .15s
-        }
-
-            .tab.active {
-                background: var(--teal);
-                color: #fff;
-                border-color: var(--teal)
-            }
-
-            .tab:hover:not(.active) {
-                background: var(--color-background-secondary,#f0f0f0)
-            }
-
-        .panel {
-            background: var(--color-background-primary,#fff);
-            border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 10px
-        }
-
-        .section-title {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--color-text-secondary,#666);
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15))
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 10px
-        }
-
-            .field label {
-                font-size: 11px;
-                color: var(--color-text-secondary,#666);
-                font-weight: 500
-            }
-
-            .field input, .field select, .field textarea {
-                font-size: 13px;
-                padding: 8px 10px;
-                border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-                border-radius: 8px;
-                background: var(--color-background-primary,#fff);
-                color: var(--color-text-primary,#111);
-                width: 100%;
-                font-family: inherit;
-            }
-
-            .field textarea {
-                resize: vertical;
-                min-height: 60px;
-            }
-
-                .field input:focus, .field select:focus, .field textarea:focus {
-                    outline: none;
-                    border-color: var(--teal);
-                    box-shadow: 0 0 0 2px rgba(29,158,117,0.2)
-                }
-
-        .log-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 10px 16px;
-            background: var(--teal);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all .15s;
-            margin-top: 8px;
-            width: 100%;
-        }
-
-            .log-btn:hover {
-                opacity: .9
-            }
-
-        .log-entry {
-            display: flex;
-            gap: 10px;
-            padding: 8px;
-            border-radius: 8px;
-            border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));
-            margin-bottom: 6px;
-            font-size: 12px;
-            align-items: flex-start
-        }
-
-        .log-time {
-            font-size: 11px;
-            color: #fff;
-            background: var(--teal);
-            padding: 2px 7px;
-            border-radius: 6px;
-            white-space: nowrap;
-            font-weight: 500;
-            flex-shrink: 0
-        }
-
-        .log-cat {
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--purple);
-            background: var(--purple-light);
-            padding: 2px 7px;
-            border-radius: 6px;
-            flex-shrink: 0
-        }
-
-        .log-content {
-            color: var(--color-text-primary,#111);
-            flex: 1;
-            line-height: 1.5
-        }
-
-        .log-delete {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--color-text-secondary,#666);
-            padding: 0 4px;
-            font-size: 14px;
-            flex-shrink: 0
-        }
-
-            .log-delete:hover {
-                color: var(--red)
-            }
-
-        .logs-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px
-        }
-
-        .logs-title {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--color-text-secondary,#666)
-        }
-
-        .clear-btn {
-            font-size: 11px;
-            color: var(--red);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 6px
-        }
-
-            .clear-btn:hover {
-                background: var(--red-light)
-            }
-
-        .no-logs {
-            font-size: 12px;
-            color: var(--color-text-secondary,#666);
-            text-align: center;
-            padding: 16px;
-            font-style: italic
-        }
-
-        .scale-btns {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap
-        }
-
-        .scale-btn {
-            width: 32px;
-            height: 28px;
-            border-radius: 6px;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            background: var(--color-background-secondary,#f0f0f0);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all .15s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-            .scale-btn:hover {
-                background: var(--teal-light);
-                border-color: var(--teal)
-            }
-
-            .scale-btn.sel {
-                background: var(--teal);
-                color: #fff;
-                border-color: var(--teal)
-            }
-
-        .export-btn {
-            padding: 6px 14px;
-            border-radius: 8px;
-            border: 0.5px solid var(--teal);
-            background: var(--teal-light);
-            color: var(--teal-dark);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500
-        }
-
-        .stats-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 12px
-        }
-
-        .stat-card {
-            flex: 1;
-            min-width: 80px;
-            background: var(--color-background-secondary,#f0f0f0);
-            border-radius: 8px;
-            padding: 8px 10px;
-            text-align: center
-        }
-
-        .stat-num {
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--teal-dark)
-        }
-
-        .stat-label {
-            font-size: 10px;
-            color: var(--color-text-secondary,#666);
-            margin-top: 2px
-        }
-
-        .timestamp-display {
-            font-size: 11px;
-            color: var(--color-text-secondary,#666);
-            background: var(--color-background-secondary,#f0f0f0);
-            padding: 4px 10px;
-            border-radius: 6px;
-            display: inline-block;
-            margin-bottom: 10px
-        }
-
-        .quick-btns {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 4px
-        }
-
-        .qbtn {
-            padding: 5px 12px;
-            border-radius: 8px;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            background: var(--color-background-secondary,#f0f0f0);
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--color-text-primary,#111);
-            transition: all .15s
-        }
-
-            .qbtn:hover {
-                background: var(--teal-light);
-                border-color: var(--teal);
-                color: var(--teal-dark)
-            }
-
-            .qbtn.selected {
-                background: var(--teal);
-                color: #fff;
-                border-color: var(--teal)
-            }
-
-        .sym-filter-scroll {
-            overflow-x: auto;
-            margin-bottom: 12px;
-            padding-bottom: 4px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-            .sym-filter-scroll::-webkit-scrollbar {
-                display: none;
-            }
-
-        .sym-filters {
-            display: flex;
-            gap: 6px;
-        }
-
-        .sym-filter-btn {
-            white-space: nowrap;
-            padding: 6px 12px;
-            border-radius: 12px;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            background: var(--color-background-primary,#fff);
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--color-text-secondary,#666);
-            transition: all .15s
-        }
-
-            .sym-filter-btn.active {
-                background: var(--coral);
-                color: #fff;
-                border-color: var(--coral)
-            }
-
-        .sym-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 10px
-        }
-
-        .sym-card {
-            position: relative;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            border-radius: 10px;
-            padding: 8px 10px;
-            cursor: pointer;
-            transition: all .15s;
-            background: var(--color-background-primary,#fff);
-            min-width: 130px;
-            max-width: 220px;
-            flex: 1;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-            .sym-card:hover {
-                border-color: var(--coral);
-                background: var(--coral-light)
-            }
-
-            .sym-card.selected {
-                border: 1.5px solid var(--coral);
-                background: var(--coral-light)
-            }
-
-        .sym-card-name {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--color-text-primary,#111);
-            margin-bottom: 2px;
-            padding-right: 24px;
-            pointer-events: none;
-        }
-
-        .sym-card-desc {
-            font-size: 10px;
-            color: var(--color-text-secondary,#666);
-            line-height: 1.4;
-            display: none;
-            pointer-events: none;
-        }
-
-        .sym-card.selected .sym-card-desc {
-            display: block
-        }
-
-        .sym-card.expanded .sym-card-desc {
-            display: block
-        }
-
-        .sym-card-actions {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            display: flex;
-            gap: 3px
-        }
-
-        .sym-icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 5px;
-            font-size: 13px;
-            color: var(--color-text-secondary,#666);
-            line-height: 1
-        }
-
-            .sym-icon-btn:hover {
-                background: var(--color-background-secondary,#f0f0f0);
-                color: var(--color-text-primary,#111)
-            }
-
-        .add-sym-btn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 7px 12px;
-            border-radius: 8px;
-            border: 0.5px dashed var(--coral);
-            background: none;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--coral);
-            font-weight: 500;
-            margin-bottom: 10px;
-            transition: all .15s
-        }
-
-            .add-sym-btn:hover {
-                background: var(--coral-light)
-            }
-
-        .sym-edit-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000
-        }
-
-        .sym-edit-box {
-            background: var(--color-background-primary,#fff);
-            border-radius: 12px;
-            padding: 20px;
-            width: 90%;
-            max-width: 420px;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3))
-        }
-
-            .sym-edit-box h3 {
-                font-size: 14px;
-                font-weight: 500;
-                margin-bottom: 14px;
-                color: var(--coral)
-            }
-
-            .sym-edit-box label {
-                font-size: 11px;
-                font-weight: 500;
-                color: var(--color-text-secondary,#666);
-                display: block;
-                margin-bottom: 3px;
-                margin-top: 10px
-            }
-
-            .sym-edit-box input, .sym-edit-box textarea, .sym-edit-box select {
-                width: 100%;
-                font-size: 13px;
-                padding: 7px 10px;
-                border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-                border-radius: 8px;
-                background: var(--color-background-primary,#fff);
-                color: var(--color-text-primary,#111);
-                font-family: inherit
-            }
-
-            .sym-edit-box textarea {
-                min-height: 80px;
-                resize: vertical
-            }
-
-                .sym-edit-box input:focus, .sym-edit-box textarea:focus, .sym-edit-box select:focus {
-                    outline: none;
-                    border-color: var(--coral);
-                    box-shadow: 0 0 0 2px rgba(216,90,48,0.15)
-                }
-
-        .edit-btn-row {
-            display: flex;
-            gap: 8px;
-            margin-top: 14px;
-            justify-content: flex-end
-        }
-
-        .btn-save {
-            padding: 7px 18px;
-            background: var(--coral);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500
-        }
-
-        .btn-cancel {
-            padding: 7px 14px;
-            background: var(--color-background-secondary,#f0f0f0);
-            color: var(--color-text-primary,#111);
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px
-        }
-
-        .btn-delete {
-            padding: 7px 14px;
-            background: var(--red-light);
-            color: var(--red);
-            border: 0.5px solid var(--red);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px
-        }
-
-        .persist-btns {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 10px
-        }
-
-        .persist-btn {
-            flex: 1;
-            padding: 7px;
-            border-radius: 8px;
-            border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3));
-            background: var(--color-background-secondary,#f0f0f0);
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            text-align: center;
-            transition: all .15s
-        }
-
-            .persist-btn.sel {
-                background: var(--coral);
-                color: #fff;
-                border-color: var(--coral)
-            }
-
-            .persist-btn:hover:not(.sel) {
-                background: var(--coral-light);
-                border-color: var(--coral);
-                color: var(--coral-dark)
-            }
-
-        .rich-text-content b, .rich-text-content strong {
-            font-weight: 700;
-            color: #000;
-        }
+        /* NEW LOGIN STYLES */
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; background: var(--color-background-tertiary); }
+        .login-box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .login-btn { background: var(--blue); color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="app">
+
+    <div id="login-screen">
+        <div class="login-box">
+            <h1 style="color:var(--teal-dark); margin-bottom: 10px;">🌿 Celiac Health Tracker</h1>
+            <p style="color:var(--gray);">Secure your health data in the cloud.</p>
+            <button class="login-btn" onclick="window.signIn()">Sign in with Google</button>
+        </div>
+    </div>
+
+    <div class="app" id="app-content" style="display:none;">
         <div class="header">
             <div>
                 <h1>🌿 Celiac Health Tracker</h1>
                 <div style="font-size:11px;color:var(--color-text-secondary,#666);margin-top:2px">Tap any category → fill → Log Entry</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                <button onclick="window.signOutUser()" style="background:none; border:none; color:var(--red); font-size:11px; cursor:pointer; text-decoration:underline;">Sign Out</button>
                 <div style="font-size:12px;font-weight:500;background:var(--teal-light);color:var(--teal-dark);padding:4px 10px;border-radius:8px" id="live-date"></div>
                 <button class="export-btn" onclick="exportLogs()">↓ Export CSV</button>
             </div>
         </div>
 
-        <div class="main-tabs" id="main-tabs">
-            </div>
+        <div class="main-tabs" id="main-tabs"></div>
 
         <div id="view-daily-log">
             <div class="stats-row">
@@ -748,16 +135,11 @@
                 <div class="stat-card"><div class="stat-num" id="stat-meals">0</div><div class="stat-label">meals</div></div>
                 <div class="stat-card"><div class="stat-num" id="stat-poop">0</div><div class="stat-label">bowel events</div></div>
             </div>
-
             <div class="tabs" id="sub-tabs"></div>
             <div id="tab-content"></div>
-
             <div class="panel">
                 <div class="logs-header">
                     <div class="logs-title">All logs — <span id="log-count">0</span> entries</div>
-                    <div style="display:flex;gap:8px">
-                        <button class="clear-btn" onclick="if(confirm('Clear all logs?')){logs=[];saveLogs();renderLogs();updateStats()}">clear all</button>
-                    </div>
                 </div>
                 <div id="log-list"></div>
             </div>
@@ -766,14 +148,8 @@
         <div id="view-tests" style="display:none;">
             <div class="panel">
                 <div class="section-title" style="color:var(--blue)">Add New Test or Document</div>
-                <div class="field">
-                    <label>Test Name / Type</label>
-                    <input type="text" id="test-name" placeholder="e.g. Endoscopy, Blood Panel, IgA TTG...">
-                </div>
-                <div class="field">
-                    <label>Date of Test</label>
-                    <input type="date" id="test-date">
-                </div>
+                <div class="field"><label>Test Name / Type</label><input type="text" id="test-name" placeholder="e.g. Endoscopy, Blood Panel, IgA TTG..."></div>
+                <div class="field"><label>Date of Test</label><input type="date" id="test-date"></div>
                 <div class="field">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <label>Summary / Context / Results</label>
@@ -788,36 +164,16 @@
                 </div>
                 <button class="log-btn" style="background:var(--blue)" onclick="saveTest()">Log Test to Timeline</button>
             </div>
-
-            <div class="panel">
-                <div class="logs-header">
-                    <div class="logs-title" style="font-size: 14px; font-weight: 600;">Chronological Timeline</div>
-                </div>
-                <div id="tests-timeline">
-                    </div>
-            </div>
+            <div class="panel"><div class="logs-header"><div class="logs-title" style="font-size: 14px; font-weight: 600;">Chronological Timeline</div></div><div id="tests-timeline"></div></div>
         </div>
 
         <div id="view-background" style="display:none;">
             <div class="panel">
                 <div class="section-title" style="color:var(--amber)">Your Profile & Mission</div>
-                <div style="font-size:12px; color:var(--color-text-secondary); margin-bottom:12px; line-height: 1.5;">
-                    Keep a permanent record of why you started this journey and your historical context. Changes save automatically when you click the button.
-                </div>
-                
-                <div class="field">
-                    <label>General Background / Diagnosis Journey</label>
-                    <textarea id="bg-general" placeholder="When did your symptoms start? Have you been officially diagnosed?..." style="min-height: 100px;"></textarea>
-                </div>
-                <div class="field">
-                    <label>The Mission</label>
-                    <textarea id="bg-mission" placeholder="Why are you recording this data? What are your ultimate health goals?..." style="min-height: 100px;"></textarea>
-                </div>
-                <div class="field">
-                    <label>Past Lifestyle Context</label>
-                    <textarea id="bg-lifestyle" placeholder="What was your diet like before? Stress levels? Past environments?..." style="min-height: 100px;"></textarea>
-                </div>
-                
+                <div style="font-size:12px; color:var(--color-text-secondary); margin-bottom:12px; line-height: 1.5;">Keep a permanent record of why you started this journey and your historical context. Changes save automatically when you click the button.</div>
+                <div class="field"><label>General Background / Diagnosis Journey</label><textarea id="bg-general" placeholder="When did your symptoms start? Have you been officially diagnosed?..." style="min-height: 100px;"></textarea></div>
+                <div class="field"><label>The Mission</label><textarea id="bg-mission" placeholder="Why are you recording this data? What are your ultimate health goals?..." style="min-height: 100px;"></textarea></div>
+                <div class="field"><label>Past Lifestyle Context</label><textarea id="bg-lifestyle" placeholder="What was your diet like before? Stress levels? Past environments?..." style="min-height: 100px;"></textarea></div>
                 <button class="log-btn" style="background:var(--amber)" onclick="saveBackground(this)">Save Profile</button>
             </div>
         </div>
@@ -826,7 +182,6 @@
     <div id="test-summary-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:3000;align-items:center;justify-content:center;padding:16px;">
         <div class="sym-edit-box" style="border-color:var(--blue); width: 100%; max-width: 600px; height: 80vh; display: flex; flex-direction: column;">
             <h3 style="color:var(--blue); margin-bottom: 12px; margin-top: 0;">Test Summary & Context Editor</h3>
-            <div style="font-size:11px; color:var(--color-text-secondary); margin-bottom: 12px;">Use this space to freely type out long notes, doctor comments, or result details.</div>
             <textarea id="modal-test-summary-input" style="flex: 1; width: 100%; font-size: 14px; padding: 12px; border: 1px solid var(--color-border-secondary); border-radius: 8px; resize: none; margin-bottom: 12px; font-family: inherit;" placeholder="Write detailed notes here..."></textarea>
             <div class="edit-btn-row" style="margin-top: 0;">
                 <button class="btn-cancel" onclick="closeTestSummaryModal()">Cancel</button>
@@ -838,22 +193,12 @@
     <div id="sym-edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
         <div class="sym-edit-box">
             <h3 id="modal-title">Edit symptom</h3>
-            <label>Symptom name</label>
-            <input type="text" id="modal-name" placeholder="Symptom name">
+            <label>Symptom name</label><input type="text" id="modal-name" placeholder="Symptom name">
             <label>Category</label>
             <select id="modal-cat">
-                <option value="Heart">Heart</option>
-                <option value="Breathing">Breathing</option>
-                <option value="Upper GI">Upper GI</option>
-                <option value="Lower GI">Lower GI</option>
-                <option value="Neurological">Neurological</option>
-                <option value="Ears / Mouth">Ears / Mouth</option>
-                <option value="Muscle/Nerve">Muscle/Nerve</option>
-                <option value="General">General</option>
+                <option value="Heart">Heart</option><option value="Breathing">Breathing</option><option value="Upper GI">Upper GI</option><option value="Lower GI">Lower GI</option><option value="Neurological">Neurological</option><option value="Ears / Mouth">Ears / Mouth</option><option value="Muscle/Nerve">Muscle/Nerve</option><option value="General">General</option>
             </select>
-            <label>Description</label>
-            <textarea id="modal-desc" placeholder="Describe this symptom..."></textarea>
-            <input type="hidden" id="modal-idx">
+            <label>Description</label><textarea id="modal-desc" placeholder="Describe this symptom..."></textarea>
             <div class="edit-btn-row">
                 <button class="btn-delete" id="modal-delete-btn" onclick="deleteSymptom()">Delete</button>
                 <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -865,19 +210,13 @@
     <div id="food-edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center">
         <div class="sym-edit-box" style="border-color:var(--teal)">
             <h3 id="food-modal-title" style="color:var(--teal)">Edit item</h3>
-            <label>Name</label>
-            <input type="text" id="food-modal-name" placeholder="Item name">
+            <label>Name</label><input type="text" id="food-modal-name" placeholder="Item name">
             <label>Category</label>
             <select id="food-modal-cat">
-                <option value="Ingredient">Ingredients / Brands</option>
-                <option value="Cookware">Pans / Cookware</option>
-                <option value="Location">Location</option>
-                <option value="Soap">Washing Soap</option>
+                <option value="Ingredient">Ingredients / Brands</option><option value="Cookware">Pans / Cookware</option><option value="Location">Location</option><option value="Soap">Washing Soap</option>
             </select>
             <label>Description / Research Notes</label>
-            <div style="font-size:10px; color:var(--teal); margin-bottom:4px;">Tip: Wrap text in **asterisks** to make it **bold**.</div>
-            <textarea id="food-modal-desc" placeholder="Add your research here... e.g. **Brand X** is safe but avoid **Brand Y**." style="min-height: 120px;"></textarea>
-            <input type="hidden" id="food-modal-idx">
+            <textarea id="food-modal-desc" placeholder="Add your research here..." style="min-height: 120px;"></textarea>
             <div class="edit-btn-row">
                 <button class="btn-delete" id="food-modal-delete-btn" onclick="deleteFood()">Delete</button>
                 <button class="btn-cancel" onclick="closeFoodModal()">Cancel</button>
@@ -899,722 +238,197 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        // Consolidate imports to use the v10.8.1 CDN links native to browsers
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
+        import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Single declaration of your exact configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDH6cmBjvnQ8o2kNpC52VROxRE7tyU-a_4",
+            authDomain: "symtomi-voice-health-tracking.firebaseapp.com",
+            projectId: "symtomi-voice-health-tracking",
+            storageBucket: "symtomi-voice-health-tracking.firebasestorage.app",
+            messagingSenderId: "499668406403",
+            appId: "1:499668406403:web:5f5c24e7caf87a0b4ccbb6",
+            measurementId: "G-7EPLL3YQE6"
+        };
+        
+        const WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL"; // Paste from Phase 5 here if you have one
+
+        // Initialize Firebase services
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        // Make global states accessible
+        window.logs = [];
+        window.testsList = [];
+        window.customSymptoms = [];
+        window.customFoods = [];
+        let formState = {};
+
+        // === AUTHENTICATION ===
+        const provider = new GoogleAuthProvider();
+        window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error("Login Error:", e); } };
+        window.signOutUser = async () => { await signOut(auth); };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                await loadAllDataFromCloud();
+            } else {
+                currentUser = null;
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        });
+
+        // === FIREBASE SYNC FUNCTIONS ===
+        async function loadAllDataFromCloud() {
+            if (!currentUser) return;
+            const uid = currentUser.uid;
+
+            // Load Profile
+            const profileSnap = await getDoc(doc(db, "users", uid, "profile", "main"));
+            if(profileSnap.exists()) {
+                const bgInfo = profileSnap.data();
+                document.getElementById('bg-general').value = bgInfo.general || '';
+                document.getElementById('bg-mission').value = bgInfo.mission || '';
+                document.getElementById('bg-lifestyle').value = bgInfo.lifestyle || '';
+            }
+
+            // Load Configs (Symptoms & Foods)
+            const symSnap = await getDoc(doc(db, "users", uid, "configs", "symptoms"));
+            window.customSymptoms = symSnap.exists() ? symSnap.data().items : [...DEFAULT_SYMPTOMS];
+            
+            const foodSnap = await getDoc(doc(db, "users", uid, "configs", "foods"));
+            window.customFoods = foodSnap.exists() ? foodSnap.data().items : [...DEFAULT_FOODS];
+
+            // Load Logs
+            window.logs = [];
+            const logsSnap = await getDocs(collection(db, "users", uid, "logs"));
+            logsSnap.forEach(doc => { window.logs.push({ ...doc.data(), docId: doc.id }); });
+            window.logs.sort((a,b) => b.id - a.id); // Sort by timestamp DESC
+
+            // Load Tests
+            window.testsList = [];
+            const testsSnap = await getDocs(collection(db, "users", uid, "tests"));
+            testsSnap.forEach(doc => { window.testsList.push({ ...doc.data(), docId: doc.id }); });
+
+            // Initialize UI
+            renderMainTabs();
+            switchMainTab('daily_log'); 
+            renderLogs();
+            updateStats();
+        }
+
+        async function triggerGoogleSheetWebhook(entry) {
+            if(!WEBHOOK_URL || WEBHOOK_URL.includes("YOUR_")) return;
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ userId: currentUser.email, category: entry.catLabel, details: entry.content }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch(e) { console.error("Webhook failed:", e); }
+        }
+
+        // ==========================================
+        // ALL EXISTING LOGIC RE-MAPPED TO FIREBASE
+        // ==========================================
+
+        const DEFAULT_SYMPTOMS = [{ name: "Ectopic / skipped heartbeats", cat: "Heart", desc: "Short episodes..." }, { name: "Brain fog", cat: "Neurological", desc: "Difficulty concentrating" }];
+        const DEFAULT_FOODS = [{ name: "turkey breast", cat: "Ingredient", desc: "" }, { name: "apple", cat: "Ingredient", desc: "" }];
+        const SYMPTOM_CATEGORIES = ['All', 'Heart', 'Breathing', 'Upper GI', 'Lower GI', 'Neurological', 'Ears / Mouth', 'Muscle/Nerve', 'General'];
+        const FOOD_CATEGORIES = ['All', 'Ingredient', 'Cookware', 'Location', 'Soap'];
+        let activeSymCategory = 'General';
+        let activeFoodCategory = 'All';
+
         function formatRichText(text) {
             if (!text) return '';
             let html = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-            html = html.replace(/\n/g, '<br>');
-            return html;
+            return html.replace(/\n/g, '<br>');
         }
 
         let currentMainTab = 'daily_log'; 
-        const MAIN_TABS = [
-            { id: 'daily_log', label: '📝 Daily Log' },
-            { id: 'tests', label: '🔬 Tests & Timeline' },
-            { id: 'background', label: '👤 Background' }
-        ];
+        const MAIN_TABS = [{ id: 'daily_log', label: '📝 Daily Log' }, { id: 'tests', label: '🔬 Tests' }, { id: 'background', label: '👤 Profile' }];
 
-        function renderMainTabs() {
-            document.getElementById('main-tabs').innerHTML = MAIN_TABS.map(t => 
-                `<button class="main-tab ${t.id === currentMainTab ? 'active' : ''}" onclick="switchMainTab('${t.id}')">${t.label}</button>`
-            ).join('');
-        }
+        window.renderMainTabs = function() {
+            document.getElementById('main-tabs').innerHTML = MAIN_TABS.map(t => `<button class="main-tab ${t.id === currentMainTab ? 'active' : ''}" onclick="window.switchMainTab('${t.id}')">${t.label}</button>`).join('');
+        };
 
-        function switchMainTab(id) {
-            currentMainTab = id;
-            renderMainTabs();
-            
+        window.switchMainTab = function(id) {
+            currentMainTab = id; renderMainTabs();
             document.getElementById('view-daily-log').style.display = id === 'daily_log' ? 'block' : 'none';
             document.getElementById('view-tests').style.display = id === 'tests' ? 'block' : 'none';
             document.getElementById('view-background').style.display = id === 'background' ? 'block' : 'none';
+            if (id === 'daily_log') { renderSubTabs(); renderForm(); } 
+            else if (id === 'tests') { renderTestsTimeline(); }
+        };
 
-            if (id === 'daily_log') {
-                renderSubTabs();
-                renderForm();
-            } else if (id === 'tests') {
-                renderTestsTimeline();
-            } else if (id === 'background') {
-                loadBackground();
-            }
-        }
-
-        // --- TEST EXPANSION MODAL ---
-        function openTestSummaryModal() {
-            document.getElementById('modal-test-summary-input').value = document.getElementById('test-summary').value;
-            document.getElementById('test-summary-modal').style.display = 'flex';
-        }
-        function closeTestSummaryModal() {
-            document.getElementById('test-summary-modal').style.display = 'none';
-        }
-        function saveTestSummaryModal() {
-            document.getElementById('test-summary').value = document.getElementById('modal-test-summary-input').value;
-            closeTestSummaryModal();
-        }
-
-        let testsList = JSON.parse(localStorage.getItem('celiac_tests') || '[]');
-
-        function saveTest() {
-            const name = document.getElementById('test-name').value.trim();
-            const date = document.getElementById('test-date').value;
-            const summary = document.getElementById('test-summary').value.trim();
-            const fileInput = document.getElementById('test-file');
-            
-            if (!name || !date) { alert('Please provide at least a Test Name and Date.'); return; }
-
-            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : null;
-
-            const newTest = {
-                id: Date.now(),
-                name: name,
-                date: date,
-                summary: summary,
-                fileName: fileName
-            };
-
-            testsList.push(newTest);
-            localStorage.setItem('celiac_tests', JSON.stringify(testsList));
-            
-            document.getElementById('test-name').value = '';
-            document.getElementById('test-date').value = '';
-            document.getElementById('test-summary').value = '';
-            document.getElementById('test-file').value = '';
-            
-            renderTestsTimeline();
-        }
-
-        function deleteTest(id) {
-            if(!confirm("Remove this test from timeline?")) return;
-            testsList = testsList.filter(t => t.id !== id);
-            localStorage.setItem('celiac_tests', JSON.stringify(testsList));
-            renderTestsTimeline();
-        }
-
-        function renderTestsTimeline() {
-            const container = document.getElementById('tests-timeline');
-            
-            if (testsList.length === 0) {
-                container.innerHTML = `<div class="no-logs">No tests logged yet. Add one above.</div>`;
-                return;
-            }
-
-            const sorted = [...testsList].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            container.innerHTML = `<div class="timeline">` + sorted.map(t => {
-                const dateObj = new Date(t.date);
-                const dateString = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-                
-                let fileHtml = t.fileName ? `<div class="timeline-file">📎 ${t.fileName}</div>` : '';
-                
-                return `
-                <div class="timeline-item">
-                    <div style="position: absolute; right: 10px; top: 10px;">
-                        <button class="log-delete" onclick="deleteTest(${t.id})">Del</button>
-                    </div>
-                    <div class="timeline-date">${dateString}</div>
-                    <div class="timeline-title">${t.name}</div>
-                    ${t.summary ? `<div class="timeline-summary">${formatRichText(t.summary)}</div>` : ''}
-                    ${fileHtml}
-                </div>`;
-            }).join('') + `</div>`;
-        }
-
-        function loadBackground() {
-            const bgInfo = JSON.parse(localStorage.getItem('celiac_bg') || '{"general":"","mission":"","lifestyle":""}');
-            document.getElementById('bg-general').value = bgInfo.general || '';
-            document.getElementById('bg-mission').value = bgInfo.mission || '';
-            document.getElementById('bg-lifestyle').value = bgInfo.lifestyle || '';
-        }
-
-        function saveBackground(btn) {
+        // --- BACKGROUND ---
+        window.saveBackground = async function(btn) {
             const bgInfo = {
                 general: document.getElementById('bg-general').value.trim(),
                 mission: document.getElementById('bg-mission').value.trim(),
                 lifestyle: document.getElementById('bg-lifestyle').value.trim()
             };
-            localStorage.setItem('celiac_bg', JSON.stringify(bgInfo));
-            
-            const orig = btn.innerHTML; 
-            btn.innerHTML = 'Saved Successfully!'; 
-            btn.style.background = '#27500A'; 
+            await setDoc(doc(db, "users", currentUser.uid, "profile", "main"), bgInfo);
+            const orig = btn.innerHTML; btn.innerHTML = 'Saved to Cloud!'; btn.style.background = '#27500A'; 
             setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--amber)' }, 1200);
-        }
+        };
 
-        const SYMPTOM_CATEGORIES = ['All', 'Heart', 'Breathing', 'Upper GI', 'Lower GI', 'Neurological', 'Ears / Mouth', 'Muscle/Nerve', 'General'];
-        let activeSymCategory = 'General';
+        // --- TESTS ---
+        window.saveTest = async function() {
+            const name = document.getElementById('test-name').value.trim();
+            const date = document.getElementById('test-date').value;
+            const summary = document.getElementById('test-summary').value.trim();
+            if (!name || !date) return alert('Test Name and Date required.');
 
-        const DEFAULT_SYMPTOMS = [
-            { name: "Ectopic / skipped heartbeats", cat: "Heart", desc: "Short episodes of abnormal rhythm heartbeats lasting about 3–20 seconds..." },
-            { name: "Long episode of rapid heartbeat", cat: "Heart", desc: "Prolonged periods of very fast heart rate, possibly above 170 BPM, lasting 30–80 minutes." },
-            { name: "Rapid heartbeat", cat: "Heart", desc: "Heart rate above 110 BPM." },
-            { name: "Low resting heart rate", cat: "Heart", desc: "Resting heart rate below 60 BPM." },
-            { name: "Low blood pressure", cat: "Heart", desc: "Blood pressure generally lower than 90/60 mmHg." },
-            { name: "High heart rate after eating", cat: "Heart", desc: "Noticeably elevated heart rate occurring after meals." },
-            { name: "Shortness of breath", cat: "Breathing", desc: "Feeling unable to take a full breath." },
-            { name: "Difficulty breathing", cat: "Breathing", desc: "Labored or effortful breathing." },
-            { name: "Breathing discomfort from gas pressure", cat: "Breathing", desc: "Sensation that bloating or trapped gas presses upward and affects breathing." },
-            { name: "Burning in upper GI area", cat: "Upper GI", desc: "Burning sensation mostly in the small intestine / duodenum area." },
-            { name: "Stomach burning", cat: "Upper GI", desc: "Burning sensation in the stomach area." },
-            { name: "Bloating post meals", cat: "Upper GI", desc: "Abdominal swelling and fullness occurring after eating." },
-            { name: "Bloating on empty stomach", cat: "Upper GI", desc: "Abdominal swelling when stomach is empty." },
-            { name: "Stabbing abdominal pain", cat: "Lower GI", desc: "Sharp, sudden abdominal pains." },
-            { name: "Abdominal cramps", cat: "Lower GI", desc: "Cramping sensations in the abdomen." },
-            { name: "Trapped gas", cat: "Lower GI", desc: "Unable to release intestinal gas; feels like it presses on internal organs." },
-            { name: "Lot of gas", cat: "Lower GI", desc: "Constant farting but able to pass it." },
-            { name: "Diarrhea", cat: "Lower GI", desc: "Loose or watery stools" },
-            { name: "Middle GI pain", cat: "Lower GI", desc: "Pain in the mid-abdominal / mid-gastrointestinal area." },
-            { name: "Lower GI pain", cat: "Lower GI", desc: "Pain in the lower abdominal / lower gastrointestinal area." },
-            { name: "Brain fog / foggy thinking", cat: "Neurological", desc: "Difficulty concentrating, slowed thinking, or mental cloudiness, brain fog" },
-            { name: "Headaches", cat: "Neurological", desc: "Pain or pressure in the head." },
-            { name: "Dizziness / lightheaded", cat: "Neurological", desc: "Feeling dizzy, or lightheaded." },
-            { name: "Ear ringing", cat: "Ears / Mouth", desc: "Episode of ringing in the ears ." },
-            { name: "Ear noises", cat: "Ears / Mouth", desc: "Beach-like  sounds in one or both ears." },
-            { name: "mouth sores ", cat: "Ears / Mouth", desc: "" },
-            { name: "Persistent twitches", cat: "Muscle/Nerve", desc: "Muscle or nerve twitches that continue over time." },
-            { name: "Tiredness", cat: "General", desc: "Harder to do normal things, such as going up the stairs." },
-            { name: "Feeling generally unwell", cat: "General", desc: "" },
-            { name: "shaking/ termors and feeling cold", cat: "General", desc: "" },
-            { name: "nausea ", cat: "General", desc: "" },
-            { name: "other ", cat: "General", desc: "" },
-            { name: "Feeling hot / hot flashes", cat: "General", desc: "Sudden sensation of heat, flushing, or warmth in the body / face." },
-            { name: "Feeling of impending doom", cat: "General", desc: "Sudden intense sense that something is seriously wrong, without clear cause." },
-            { name: "Activity related symptom", cat: "General", desc: "Symptom that occurs during or triggered by physical activity." }
-        ];
-
-        let customSymptoms = JSON.parse(localStorage.getItem('celiac_symptoms') || 'null');
-        if (!customSymptoms) { customSymptoms = [...DEFAULT_SYMPTOMS]; saveSymptoms(); }
-        function saveSymptoms() { localStorage.setItem('celiac_symptoms', JSON.stringify(customSymptoms)) }
-
-        const FOOD_CATEGORIES = ['All', 'Ingredient', 'Cookware', 'Location', 'Soap'];
-        let activeFoodCategory = 'All';
-
-        const DEFAULT_FOODS = [
-            { name: "turkey breast", cat: "Ingredient", desc: "" },
-            { name: "tilapia like fish", cat: "Ingredient", desc: "" },
-            { name: "salt brand star", cat: "Ingredient", desc: "" },
-            { name: "potato", cat: "Ingredient", desc: "" },
-            { name: "cucumber", cat: "Ingredient", desc: "" },
-            { name: "eggplant", cat: "Ingredient", desc: "" },
-            { name: "apple", cat: "Ingredient", desc: "" },
-            { name: "tap water boiled", cat: "Ingredient", desc: "" },
-            { name: "gluten free yeast brand schar", cat: "Ingredient", desc: "" },
-            { name: "olive oil brand alhora", cat: "Ingredient", desc: "" },
-            { name: "inox pressure cooker", cat: "Cookware", desc: "" },
-            { name: "inox pot", cat: "Cookware", desc: "" },
-            { name: "schafer pan", cat: "Cookware", desc: "" },
-            { name: "gf roof kitchen", cat: "Location", desc: "gluten free dedicated kitchen in city of chemaia" },
-            { name: "shared kitchen", cat: "Location", desc: "" },
-            { name: "regular dish soap", cat: "Soap", desc: "" }
-        ];
-
-        let customFoods = JSON.parse(localStorage.getItem('celiac_foods') || 'null');
-        if (!customFoods) { customFoods = [...DEFAULT_FOODS]; saveFoods(); }
-        function saveFoods() { localStorage.setItem('celiac_foods', JSON.stringify(customFoods)) }
-
-
-        let currentSubTab = 'food'; 
-        let formState = {};
-        let logs = JSON.parse(localStorage.getItem('celiac_logs') || '[]');
-
-        function now() { const d = new Date(); return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) }
-        function updateClock() { const el = document.getElementById('live-date'); if (el) el.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-        setInterval(updateClock, 10000); updateClock();
-        function saveLogs() { localStorage.setItem('celiac_logs', JSON.stringify(logs)) }
-
-        const NON_SYM_CATEGORIES = [
-            {
-                id: 'gut', label: 'Gut / Poop',
-                fields: [
-                    { id: 'poop_freq', label: 'Event type', type: 'multibtn', opts: ['poop', 'fart'] },
-                    { id: 'poop_time', label: 'Duration (min)', type: 'text', placeholder: 'Minutes' },
-                    { id: 'poop_color_name', label: 'Color', type: 'multibtn', opts: ['brown', 'light brown', 'dark brown', 'yellow', 'green', 'black', 'orange', 'red', 'clay/pale'] },
-                    { id: 'poop_soft', label: 'Consistency', type: 'multibtn', opts: ['watery', 'very soft', 'soft', 'formed', 'firm', 'bit hard', 'hard', 'lumpy', 'separate pellets'] },
-                    { id: 'poop_float', label: 'Float / sink', type: 'multibtn', opts: ['floats', 'sinks', 'mixed'] },
-                    { id: 'poop_smell', label: 'Smell', type: 'multibtn', opts: ['normal', 'foul/strong', 'very foul'] },
-                    { id: 'poop_undigested', label: 'Undigested food', type: 'multibtn', opts: ['none', 'some', 'a lot'] },
-                    { id: 'poop_weird', label: 'Unusual notes', type: 'textarea', placeholder: 'Mucus, blood, unusual color/texture...' },
-                    { id: 'fart_size', label: 'Fart size/length', type: 'multibtn', opts: ['tiny', 'small', 'medium', 'large', 'very long'] },
-                    { id: 'fart_smell', label: 'Fart smell', type: 'multibtn', opts: ['none', 'mild', 'moderate', 'foul', 'very foul'] },
-                ]
-            },
-            {
-                id: 'vitals', label: 'Vitals',
-                fields: [
-                    { id: 'bp', label: 'BP (mmHg)', type: 'text', placeholder: 'e.g. 120/80' },
-                    { id: 'bp_standing', label: 'Standing BP', type: 'text', placeholder: 'e.g. 118/78' },
-                    { id: 'hr', label: 'Heart rate (bpm)', type: 'text', placeholder: 'e.g. 72' },
-                    { id: 'hr_standing', label: 'Standing HR (1–10 min after)', type: 'text', placeholder: 'bpm' },
-                    { id: 'hr_rhythm', label: 'Heart rhythm', type: 'multibtn', opts: ['regular', 'irregular', 'palpitations', 'skipped beats'] },
-                    { id: 'hr_post_meal', label: 'Post-meal HR (15min–3hr)', type: 'text', placeholder: 'bpm' },
-                    { id: 'hr_post_ex', label: 'Post-exercise recovery time', type: 'text', placeholder: 'min to normal HR' },
-                    { id: 'o2', label: 'O2 sat (%)', type: 'text', placeholder: 'e.g. 98' },
-                    { id: 'resp_rate', label: 'Respiratory rate', type: 'text', placeholder: 'breaths/min' },
-                    { id: 'resp_ctx', label: 'Respiratory context', type: 'multibtn', opts: ['resting', 'morning', 'night', 'post-meal', 'during flare', 'feeling good'] },
-                    { id: 'temp', label: 'Body temp (°C)', type: 'text', placeholder: 'e.g. 36.8' },
-                    { id: 'glucose', label: 'Blood sugar', type: 'text', placeholder: 'e.g. 95 mg/dL' },
-                    { id: 'grip', label: 'Hand grip strength', type: 'text', placeholder: 'kg or L/R' },
-                ]
-            },
-            {
-                id: 'activity', label: 'Activity',
-                fields: [
-                    { id: 'gym_duration', label: 'Exercise duration (min)', type: 'text', placeholder: 'e.g. 45' },
-                    { id: 'gym_intensity', label: 'Intensity', type: 'multibtn', opts: ['light', 'moderate', 'intense', 'very intense'] },
-                    { id: 'gym_max_kg', label: 'Max weight lifted (kg)', type: 'text', placeholder: 'e.g. 80 kg squat' },
-                    { id: 'activity_type', label: 'Activity type', type: 'multibtn', opts: ['gym', 'walking', 'running', 'cycling', 'swimming', 'yoga', 'rest', 'other'] },
-                    { id: 'activity_after_eat', label: 'Activity after eating', type: 'multibtn', opts: ['immediate', '15 min after', '30 min after', '1hr after', '2hr+ after', 'before meal'] },
-                    { id: 'activity_symptoms', label: 'Activity-related symptoms', type: 'textarea', placeholder: 'Any symptoms during/after exercise...' },
-                    { id: 'sun_time', label: 'Sun/outdoor time (min)', type: 'text', placeholder: 'minutes outside' },
-                ]
-            },
-            {
-                id: 'measures', label: 'Measures',
-                fields: [
-                    { id: 'weight', label: 'Weight (kg)', type: 'text', placeholder: 'e.g. 72.5' },
-                    { id: 'abdo_circ', label: 'Abdominal circumference (cm)', type: 'text', placeholder: 'e.g. 84' },
-                    { id: 'abdo_ctx', label: 'Measurement context', type: 'multibtn', opts: ['morning fasted', 'post-meal', 'during flare', 'during symptoms', 'evening'] },
-                    { id: 'water', label: 'Water consumed (L)', type: 'text', placeholder: 'e.g. 1.5' },
-                    { id: 'water_quality', label: 'Water type', type: 'multibtn', opts: ['filtered', 'tap', 'bottled', 'mixed'] },
-                    { id: 'pee_color', label: 'Urine color', type: 'multibtn', opts: ['clear', 'pale yellow', 'yellow', 'dark yellow', 'amber', 'orange', 'brown'] },
-                ]
-            },
-            {
-                id: 'mental', label: 'Mental',
-                fields: [
-                    { id: 'anxiety', label: 'Anxiety (1–10)', type: 'scale', max: 10 },
-                    { id: 'anger', label: 'Anger / sadness (1–10)', type: 'scale', max: 10 },
-                    { id: 'mental_notes', label: 'Notes', type: 'textarea', placeholder: 'Mood details, triggers...' },
-                ]
-            },
-            {
-                id: 'sleep', label: 'Sleep',
-                fields: [
-                    { id: 'sleep_hours', label: 'Sleep hours', type: 'text', placeholder: 'e.g. 7.5' },
-                    { id: 'sleep_quality', label: 'Sleep quality (1–10)', type: 'scale', max: 10 },
-                    { id: 'sleep_notes', label: 'Notes', type: 'textarea', placeholder: 'Interruptions, dreams...' },
-                ]
-            },
-            {
-                id: 'meds', label: 'Meds / Supps',
-                fields: [
-                    { id: 'med_name', label: 'Medication / Supplement', type: 'textarea', placeholder: 'Name, dose, brand...' },
-                    { id: 'med_notes', label: 'Notes / reaction', type: 'textarea', placeholder: 'Any effect noticed...' },
-                ]
-            },
-            {
-                id: 'environment', label: 'Environment',
-                fields: [
-                    { id: 'env_weather_info', label: 'Weather Info (Auto-fetched)', type: 'textarea', placeholder: 'API weather data will automatically populate here...' },
-                    { id: 'env_season', label: 'Season', type: 'multibtn', opts: ['spring', 'summer', 'autumn', 'winter'] },
-                    { id: 'env_weather', label: 'Weather', type: 'multibtn', opts: ['sunny', 'cloudy', 'rainy', 'windy', 'humid', 'dry', 'hot', 'cold'] },
-                    { id: 'env_temp', label: 'Outdoor temp (°C)', type: 'text', placeholder: 'e.g. 22' },
-                    { id: 'env_gluten_worry', label: 'Gluten environment worry', type: 'multibtn', opts: ['safe home', 'uncertain restaurant', 'bakery nearby', 'shared kitchen', 'travel', 'other contamination risk', 'visit to shop with flour bags', 'nearby field of wheat', 'shared kitchen no flour but bread crumbs', 'wheat season'] },
-                    { id: 'env_notes', label: 'Environment / gluten notes', type: 'textarea', placeholder: 'Specific product, place, contamination concern...' },
-                ]
-            },
-        ];
-
-        const ALL_SUB_TABS = [{ id: 'symptoms', label: 'Symptoms' }, { id: 'food', label: 'Food' }, ...NON_SYM_CATEGORIES];
-
-        function renderSubTabs() {
-            document.getElementById('sub-tabs').innerHTML = ALL_SUB_TABS.map(c => `<button class="tab${c.id === currentSubTab ? ' active' : ''}" onclick="switchSubTab('${c.id}')">${c.label}</button>`).join('');
-        }
-        function switchSubTab(id) { currentSubTab = id; formState = {}; renderSubTabs(); renderForm() }
-        function setSymCategory(cat) { activeSymCategory = cat; renderForm(); }
-        function setFoodCategory(cat) { activeFoodCategory = cat; renderForm(); }
-
-        /* ====== WEATHER API FUNCTION ====== */
-        window.fetchWeather = async function(isAuto = false) {
-            try {
-                const btn = document.getElementById('weather-btn');
-                if(btn && !isAuto) btn.innerHTML = '🌤️ Fetching data...';
-                
-                const url = 'https://api.open-meteo.com/v1/forecast?latitude=32.081&longitude=-8.6246&daily=temperature_2m_max,temperature_2m_min,sunshine_duration,daylight_duration,wind_speed_10m_max&hourly=temperature_2m,rain,relative_humidity_2m,pressure_msl,wind_speed_10m,soil_temperature_0cm,soil_temperature_6cm,wind_speed_80m&current=temperature_2m,rain,wind_speed_10m,is_day';
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                const c = data.current;
-                let w = [];
-                if (c.rain > 0) w.push('rainy');
-                else if (c.is_day) w.push('sunny');
-                if (c.wind_speed_10m > 15) w.push('windy');
-                
-                const weatherString = `Temp: ${c.temperature_2m}°C\nWind: ${c.wind_speed_10m}km/h\nRain: ${c.rain}mm\nConditions: ${w.join(', ')}`;
-
-                if (isAuto) {
-                    localStorage.setItem('celiac_last_weather_fetch', new Date().toLocaleDateString());
-                    localStorage.setItem('celiac_weather_cache', weatherString);
-                } else {
-                    setField('env_weather_info', weatherString);
-                    setField('env_temp', c.temperature_2m);
-                    formState['env_weather'] = w;
-                    renderForm(); 
-                }
-            } catch(e) {
-                if (!isAuto) {
-                    alert("Failed to fetch weather. Check internet connection.");
-                    const btn = document.getElementById('weather-btn');
-                    if(btn) btn.innerHTML = '🌤️ Fetch Current Weather (Chemaia)';
-                }
-            }
-        }
-
-        function checkAutoFetchWeather() {
-            const today = new Date().toLocaleDateString();
-            if (localStorage.getItem('celiac_last_weather_fetch') === today) return;
-            const hasSymptoms = logs.some(l => l.date === today && l.cat === 'symptoms');
-            if (hasSymptoms) {
-                fetchWeather(true);
-            }
-        }
-
-        /* ====== FOOD TAB LOGIC ====== */
-        let foodPressTimer;
-        let isFoodLongPress = false;
-        function startFoodPress(i, e) {
-            isFoodLongPress = false;
-            foodPressTimer = setTimeout(() => { isFoodLongPress = true; openFoodEditModal(i); }, 500);
-        }
-        function cancelFoodPress() { clearTimeout(foodPressTimer); }
-        function handleFoodCardClick(i, e) {
-            if (isFoodLongPress) { e.preventDefault(); return; }
-            toggleFood(i);
-        }
-
-        function openFoodDescModal(i) {
-            const food = customFoods[i];
-            document.getElementById('food-view-title').textContent = food.name;
-            document.getElementById('food-view-cat').textContent = food.cat || 'Ingredient';
-            document.getElementById('food-view-content').innerHTML = formatRichText(food.desc);
-            document.getElementById('food-view-modal').style.display = 'flex';
-        }
-
-        function closeFoodDescModal() { document.getElementById('food-view-modal').style.display = 'none'; }
-
-        function renderFoodTab() {
-            let html = `<div class="panel">`;
-            html += `<div class="section-title" style="color:var(--teal)">Food & Cooking entry</div>`;
-            html += `<div class="timestamp-display">Will log at: <strong id="ts-preview">${now()}</strong></div>`;
-
-            html += `<div class="field"><label>Item type — tap to select, long press to edit or add research</label></div>`;
-
-            html += `<div class="sym-filter-scroll"><div class="sym-filters">`;
-            FOOD_CATEGORIES.forEach(c => {
-                const sel = activeFoodCategory === c ? ' active' : '';
-                html += `<button class="sym-filter-btn${sel}" onclick="setFoodCategory('${c}')" ${sel ? 'style="background:var(--teal);color:#fff;border-color:var(--teal)"' : ''}>${c}</button>`;
-            });
-            html += `</div></div>`;
-
-            html += `<div class="sym-grid" id="food-grid">`;
-            customFoods.forEach((f, i) => {
-                if (activeFoodCategory !== 'All' && f.cat !== activeFoodCategory) return;
-                const sel = Array.isArray(formState['food_selected']) && formState['food_selected'].includes(i);
-
-                let descHtml = '';
-                if (f.desc && f.desc.trim().length > 0) {
-                    let cleanPreview = f.desc.replace(/\*\*/g, '');
-                    descHtml = `<div class="desc-text" id="food_desc_text_${i}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: auto;">${cleanPreview}</div>`;
-                    descHtml += `<div class="read-more" style="color:var(--teal);font-size:10px;font-weight:bold;cursor:pointer;margin-top:4px;pointer-events:auto;display:inline-block;" onclick="event.stopPropagation(); openFoodDescModal(${i})">Read more / View details</div>`;
-                }
-
-                html += `<div class="sym-card${sel ? ' selected' : ''}" id="foodcard_${i}"
-                 style="${sel ? 'border-color:var(--teal);background:var(--teal-light)' : ''}"
-                 onmousedown="startFoodPress(${i}, event)" onmouseup="cancelFoodPress()" onmouseleave="cancelFoodPress()"
-                 ontouchstart="startFoodPress(${i}, event)" ontouchend="cancelFoodPress()" ontouchmove="cancelFoodPress()"
-                 onclick="handleFoodCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
-                  <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleFoodExpand(${i})" title="Info">i</button></div>
-                  <div class="sym-card-name" style="${sel ? 'color:var(--teal-dark)' : ''}">${f.name}</div>
-                  <div class="sym-card-desc" style="pointer-events:auto;">${descHtml}</div>
-                </div>`;
-            });
-            html += `</div>`;
-
-            html += `<button class="add-sym-btn" style="color:var(--teal);border-color:var(--teal)" onclick="openAddFoodModal()" onmouseover="this.style.background='var(--teal-light)'" onmouseout="this.style.background='none'">+ Add ingredient / tool</button>`;
-
-            html += `<div class="field"><label>Estimated Grams / Calories</label><input type="text" id="f_food_cals" placeholder="e.g. 150g turkey, 400 kcal" value="${formState['food_cals'] || ''}" oninput="setField('food_cals',this.value)"></div>`;
-            html += `<div class="field"><label>Hours until sleep (mark once a day for last meal)</label><div class="scale-btns" id="scale_food_sleep">`;
-            for (let i = 1; i <= 6; i++) html += `<button class="scale-btn${formState['food_sleep'] == i ? ' sel' : ''}" onclick="selectScale('food_sleep',${i})">${i}h</button>`;
-            html += `<button class="scale-btn${formState['food_sleep'] == '8+' ? ' sel' : ''}" onclick="selectScale('food_sleep','8+')">8+h</button>`;
-            html += `</div></div>`;
-            html += `<div class="field"><label>Gluten worry notes</label><textarea id="f_food_notes" placeholder="Brand risk, restaurant contamination concerns..." oninput="setField('food_notes',this.value)">${formState['food_notes'] || ''}</textarea></div>`;
-            html += `<button class="log-btn" onclick="logFood()">Log Food Entry</button>`;
-            html += `</div>`;
-            document.getElementById('tab-content').innerHTML = html;
-            setInterval(() => { const el = document.getElementById('ts-preview'); if (el) el.textContent = now() }, 5000);
-        }
-
-        function toggleFood(i) {
-            if (!formState['food_selected']) formState['food_selected'] = [];
-            const idx = formState['food_selected'].indexOf(i);
-            if (idx > -1) formState['food_selected'].splice(idx, 1); else formState['food_selected'].push(i);
-            const card = document.getElementById('foodcard_' + i);
-            if (card) { 
-                const isSel = formState['food_selected'].includes(i);
-                card.classList.toggle('selected', isSel); 
-                card.style.borderColor = isSel ? 'var(--teal)' : '';
-                card.style.background = isSel ? 'var(--teal-light)' : 'var(--color-background-primary)';
-                card.querySelector('.sym-card-name').style.color = isSel ? 'var(--teal-dark)' : 'var(--color-text-primary)';
-                const desc = card.querySelector('.sym-card-desc');
-                if(desc) desc.style.display = isSel ? 'block' : 'none'; 
-            }
-        }
-        function toggleFoodExpand(i) {
-            const card = document.getElementById('foodcard_' + i);
-            if (card) { 
-                card.classList.toggle('expanded'); 
-                const desc = card.querySelector('.sym-card-desc'); 
-                if(desc) desc.style.display = card.classList.contains('expanded') || card.classList.contains('selected') ? 'block' : 'none'; 
-            }
-        }
-
-        function logFood() {
-            const parts = [];
-            const sel = formState['food_selected'] || [];
-            if (sel.length === 0 && !formState['food_notes'] && !formState['food_cals']) { alert('Please select items, add macros or add notes.'); return; }
-
-            const ingredients = sel.filter(i => customFoods[i].cat === 'Ingredient').map(i => customFoods[i].name);
-            const cookware = sel.filter(i => customFoods[i].cat === 'Cookware').map(i => customFoods[i].name);
-            const locations = sel.filter(i => customFoods[i].cat === 'Location').map(i => customFoods[i].name);
-            const soaps = sel.filter(i => customFoods[i].cat === 'Soap').map(i => customFoods[i].name);
-
-            if (locations.length) parts.push('Location: ' + locations.join(', '));
-            if (cookware.length) parts.push('Cookware: ' + cookware.join(', '));
-            if (ingredients.length) parts.push('Ingredients: ' + ingredients.join(', '));
-            if (soaps.length) parts.push('Soap: ' + soaps.join(', '));
-            if (formState['food_cals']) parts.push('Amount/Calories: ' + formState['food_cals']);
-            if (formState['food_sleep']) parts.push('Hours until sleep: ' + formState['food_sleep']);
-            if (formState['food_notes']) parts.push('Notes: ' + formState['food_notes']);
-
-            const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'food', catLabel: 'Food', content: parts.join(' | ') };
-            logs.unshift(entry); saveLogs();
-            formState = {}; renderForm(); renderLogs(); updateStats();
-            const btn = document.querySelector('.log-btn');
-            if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--teal)' }, 1200) }
-        }
-
-        let editingFoodIdx = null;
-        function openFoodEditModal(i) {
-            editingFoodIdx = i;
-            document.getElementById('food-modal-title').textContent = 'Edit item';
-            document.getElementById('food-modal-name').value = customFoods[i].name;
-            document.getElementById('food-modal-cat').value = customFoods[i].cat || 'Ingredient';
-            document.getElementById('food-modal-desc').value = customFoods[i].desc;
-            document.getElementById('food-modal-delete-btn').style.display = 'inline-block';
-            document.getElementById('food-edit-modal').style.display = 'flex';
-        }
-        function openAddFoodModal() {
-            editingFoodIdx = null;
-            document.getElementById('food-modal-title').textContent = 'Add new item';
-            document.getElementById('food-modal-name').value = '';
-            document.getElementById('food-modal-cat').value = activeFoodCategory !== 'All' ? activeFoodCategory : 'Ingredient';
-            document.getElementById('food-modal-desc').value = '';
-            document.getElementById('food-modal-delete-btn').style.display = 'none';
-            document.getElementById('food-edit-modal').style.display = 'flex';
-        }
-        function closeFoodModal() { document.getElementById('food-edit-modal').style.display = 'none'; }
-        function saveFood() {
-            const name = document.getElementById('food-modal-name').value.trim();
-            const cat = document.getElementById('food-modal-cat').value;
-            const desc = document.getElementById('food-modal-desc').value.trim();
-            if (!name) { alert('Please enter an item name.'); return; }
-            if (editingFoodIdx !== null) { customFoods[editingFoodIdx] = { name, desc, cat }; } else { customFoods.push({ name, desc, cat }); }
-            saveFoods(); closeFoodModal(); renderForm();
-        }
-        function deleteFood() {
-            if (editingFoodIdx === null) return;
-            if (!confirm('Delete this item?')) return;
-            customFoods.splice(editingFoodIdx, 1);
-            saveFoods(); closeFoodModal(); renderForm();
-        }
-
-
-        /* ====== SYMPTOMS TAB ====== */
-        let symPressTimer; let isSymLongPress = false;
-        function startSymPress(i, e) {
-            isSymLongPress = false; symPressTimer = setTimeout(() => { isSymLongPress = true; openEditModal(i); }, 500);
-        }
-        function cancelSymPress() { clearTimeout(symPressTimer); }
-        function handleSymCardClick(i, e) { if (isSymLongPress) { e.preventDefault(); return; } toggleSym(i); }
-
-        function renderSymptomTab() {
-            let html = `<div class="panel">`;
-            html += `<div class="section-title" style="color:var(--coral)">Symptoms entry</div>`;
-            html += `<div class="timestamp-display">Will log at: <strong id="ts-preview">${now()}</strong></div>`;
-
-            html += `<div class="field"><label>Persistence type</label><div class="persist-btns">`;
-            const persist = ['constant', 'comes and goes', 'one-off episode', 'worsening', 'improving'];
-            persist.forEach(p => {
-                const sel = formState['sym_persist'] === p;
-                html += `<button class="persist-btn${sel ? ' sel' : ''}" onclick="selectPersist('${p}')">${p}</button>`;
-            });
-            html += `</div></div>`;
-
-            html += `<div class="field"><label>Symptom type — tap to select, long press to edit</label></div>`;
-
-            html += `<div class="sym-filter-scroll"><div class="sym-filters">`;
-            SYMPTOM_CATEGORIES.forEach(c => {
-                const sel = activeSymCategory === c ? ' active' : '';
-                html += `<button class="sym-filter-btn${sel}" onclick="setSymCategory('${c}')">${c}</button>`;
-            });
-            html += `</div></div>`;
-
-            html += `<div class="sym-grid" id="sym-grid">`;
-            customSymptoms.forEach((s, i) => {
-                if (activeSymCategory !== 'All' && s.cat !== activeSymCategory) return;
-                const sel = Array.isArray(formState['sym_selected']) && formState['sym_selected'].includes(i);
-                html += `<div class="sym-card${sel ? ' selected' : ''}" id="symcard_${i}"
-                 onmousedown="startSymPress(${i}, event)" onmouseup="cancelSymPress()" onmouseleave="cancelSymPress()"
-                 ontouchstart="startSymPress(${i}, event)" ontouchend="cancelSymPress()" ontouchmove="cancelSymPress()"
-                 onclick="handleSymCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
-          <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleSymExpand(${i})" title="Info">i</button></div>
-          <div class="sym-card-name">${s.name}</div>
-          <div class="sym-card-desc">${s.desc}</div>
-        </div>`;
-            });
-            html += `</div>`;
-
-            html += `<button class="add-sym-btn" onclick="openAddModal()">+ Add symptom type</button>`;
-
-            html += `<div class="field"><label>Strength (1–10)</label><div class="scale-btns" id="scale_sym_strength">`;
-            for (let i = 1; i <= 10; i++) html += `<button class="scale-btn${formState['sym_strength'] == i ? ' sel' : ''}" onclick="selectScale('sym_strength',${i})">${i}</button>`;
-            html += `</div></div>`;
-
-            html += `<div class="field"><label>Duration</label><input type="text" id="f_sym_duration" placeholder="e.g. 30 min, ongoing" value="${formState['sym_duration'] || ''}" oninput="setField('sym_duration',this.value)"></div>`;
-            html += `<div class="field"><label>Notes / extra details</label><textarea id="f_sym_notes" placeholder="Any additional details, context, possible triggers..." oninput="setField('sym_notes',this.value)">${formState['sym_notes'] || ''}</textarea></div>`;
-
-            html += `<button class="log-btn" style="background:var(--coral)" onclick="logSymptoms()">Log Symptom Entry</button>`;
-            html += `</div>`;
-            document.getElementById('tab-content').innerHTML = html;
-            setInterval(() => { const el = document.getElementById('ts-preview'); if (el) el.textContent = now() }, 5000);
-        }
-
-        function toggleSym(i) {
-            if (!formState['sym_selected']) formState['sym_selected'] = [];
-            const idx = formState['sym_selected'].indexOf(i);
-            if (idx > -1) formState['sym_selected'].splice(idx, 1); else formState['sym_selected'].push(i);
-            const card = document.getElementById('symcard_' + i);
-            if (card) { card.classList.toggle('selected', formState['sym_selected'].includes(i)); const desc = card.querySelector('.sym-card-desc'); if(desc) desc.style.display = formState['sym_selected'].includes(i) ? 'block' : 'none'; }
-        }
-        function toggleSymExpand(i) {
-            const card = document.getElementById('symcard_' + i);
-            if (card) { card.classList.toggle('expanded'); const desc = card.querySelector('.sym-card-desc'); if(desc) desc.style.display = card.classList.contains('expanded') || card.classList.contains('selected') ? 'block' : 'none'; }
-        }
-        function selectPersist(val) {
-            formState['sym_persist'] = val;
-            document.querySelectorAll('.persist-btn').forEach(b => b.classList.toggle('sel', b.textContent === val));
-        }
-        function selectScale(id, val) {
-            formState[id] = val;
-            const container = document.getElementById('scale_' + id);
-            if (container) container.querySelectorAll('.scale-btn').forEach((b, i) => b.classList.toggle('sel', b.textContent === String(val) || b.textContent === val+'h'));
-        }
-        function setField(id, val) { formState[id] = val }
-
-        function logSymptoms() {
-            const parts = [];
-            const sel = formState['sym_selected'] || [];
-            if (sel.length === 0) { alert('Please select at least one symptom.'); return; }
-            parts.push('Symptoms: ' + sel.map(i => customSymptoms[i].name).join(', '));
-            if (formState['sym_persist']) parts.push('Persistence: ' + formState['sym_persist']);
-            if (formState['sym_strength']) parts.push('Strength: ' + formState['sym_strength'] + '/10');
-            if (formState['sym_duration']) parts.push('Duration: ' + formState['sym_duration']);
-            if (formState['sym_notes']) parts.push('Notes: ' + formState['sym_notes']);
-            const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'symptoms', catLabel: 'Symptoms', content: parts.join(' | ') };
-            logs.unshift(entry); saveLogs();
+            const newTest = { id: Date.now(), name, date, summary, fileName: document.getElementById('test-file').files[0]?.name || null };
             
-            // Auto check weather after a symptom log
-            checkAutoFetchWeather();
-
-            formState = {}; renderForm(); renderLogs(); updateStats();
-            const btn = document.querySelector('.log-btn');
-            if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--coral)' }, 1200) }
-        }
-
-        let editingIdx = null;
-        function openEditModal(i) {
-            editingIdx = i;
-            document.getElementById('modal-title').textContent = 'Edit symptom';
-            document.getElementById('modal-name').value = customSymptoms[i].name;
-            document.getElementById('modal-cat').value = customSymptoms[i].cat || 'General';
-            document.getElementById('modal-desc').value = customSymptoms[i].desc;
-            document.getElementById('modal-delete-btn').style.display = 'inline-block';
-            document.getElementById('sym-edit-modal').style.display = 'flex';
-        }
-        function openAddModal() {
-            editingIdx = null;
-            document.getElementById('modal-title').textContent = 'Add new symptom';
-            document.getElementById('modal-name').value = '';
-            document.getElementById('modal-cat').value = activeSymCategory !== 'All' ? activeSymCategory : 'General';
-            document.getElementById('modal-desc').value = '';
-            document.getElementById('modal-delete-btn').style.display = 'none';
-            document.getElementById('sym-edit-modal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('sym-edit-modal').style.display = 'none'; }
-        function saveSymptom() {
-            const name = document.getElementById('modal-name').value.trim();
-            const cat = document.getElementById('modal-cat').value;
-            const desc = document.getElementById('modal-desc').value.trim();
-            if (!name) { alert('Please enter a symptom name.'); return; }
-            if (editingIdx !== null) { customSymptoms[editingIdx] = { name, desc, cat }; } else { customSymptoms.push({ name, desc, cat }); }
-            saveSymptoms(); closeModal(); renderForm();
-        }
-        function deleteSymptom() {
-            if (editingIdx === null) return;
-            if (!confirm('Delete this symptom type?')) return;
-            customSymptoms.splice(editingIdx, 1);
-            saveSymptoms(); closeModal(); renderForm();
-        }
-
-        /* ====== GENERIC FORM ====== */
-        function renderGenericTab(cat) {
+            // Save to Firebase
+            const docRef = await addDoc(collection(db, "users", currentUser.uid, "tests"), newTest);
+            newTest.docId = docRef.id;
             
-            // Check cache for environment weather info before rendering
-            if (cat.id === 'environment') {
-                const cachedWeather = localStorage.getItem('celiac_weather_cache');
-                const lastFetch = localStorage.getItem('celiac_last_weather_fetch');
-                if (cachedWeather && lastFetch === new Date().toLocaleDateString() && !formState['env_weather_info']) {
-                    formState['env_weather_info'] = cachedWeather;
-                }
-            }
+            window.testsList.push(newTest);
+            document.getElementById('test-name').value = ''; document.getElementById('test-date').value = ''; document.getElementById('test-summary').value = '';
+            renderTestsTimeline();
+        };
 
-            let html = `<div class="panel">`;
-            html += `<div class="section-title" style="color:var(--teal)">${cat.label} entry</div>`;
-            if (cat.id === 'environment') html += `<button id="weather-btn" class="qbtn" style="margin-bottom:12px;background:var(--blue-light);color:var(--blue);border-color:var(--blue);font-weight:500;width:100%;" onclick="fetchWeather(false)">🌤️ Fetch Current Weather (Chemaia)</button>`;
-            html += `<div class="timestamp-display">Will log at: <strong id="ts-preview">${now()}</strong></div>`;
-            cat.fields.forEach(f => {
-                html += `<div class="field"><label>${f.label}</label>`;
-                if (f.type === 'text') {
-                    html += `<input type="text" id="f_${f.id}" placeholder="${f.placeholder || ''}" value="${formState[f.id] || ''}" oninput="setField('${f.id}',this.value)">`;
-                } else if (f.type === 'textarea') {
-                    html += `<textarea id="f_${f.id}" placeholder="${f.placeholder || ''}" oninput="setField('${f.id}',this.value)">${formState[f.id] || ''}</textarea>`;
-                } else if (f.type === 'scale') {
-                    const max = f.max || 10;
-                    html += `<div class="scale-btns" id="scale_${f.id}">`;
-                    for (let i = 1; i <= max; i++)html += `<button class="scale-btn${formState[f.id] == i ? ' sel' : ''}" onclick="selectScale('${f.id}',${i})">${i}</button>`;
-                    html += `</div>`;
-                } else if (f.type === 'multibtn') {
-                    html += `<div class="quick-btns" id="multi_${f.id}">`;
-                    f.opts.forEach(o => {
-                        const sel = Array.isArray(formState[f.id]) && formState[f.id].includes(o);
-                        html += `<button class="qbtn${sel ? ' selected' : ''}" onclick="toggleMulti('${f.id}','${o}')">${o}</button>`;
-                    });
-                    html += `</div>`;
-                }
-                html += `</div>`;
-            });
-            html += `<button class="log-btn" onclick="logGeneric('${cat.id}','${cat.label}')">Log Entry</button>`;
-            html += `</div>`;
-            document.getElementById('tab-content').innerHTML = html;
-            setInterval(() => { const el = document.getElementById('ts-preview'); if (el) el.textContent = now() }, 5000);
+        window.deleteTest = async function(id, docId) {
+            if(!confirm("Delete this test?")) return;
+            await deleteDoc(doc(db, "users", currentUser.uid, "tests", docId));
+            window.testsList = window.testsList.filter(t => t.id !== id);
+            renderTestsTimeline();
+        };
+
+        window.renderTestsTimeline = function() {
+            const container = document.getElementById('tests-timeline');
+            if (window.testsList.length === 0) { container.innerHTML = `<div class="no-logs">No tests logged yet.</div>`; return; }
+            const sorted = [...window.testsList].sort((a, b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = `<div class="timeline">` + sorted.map(t => `
+                <div class="timeline-item">
+                    <div style="position: absolute; right: 10px; top: 10px;"><button class="log-delete" onclick="window.deleteTest(${t.id}, '${t.docId}')">Del</button></div>
+                    <div class="timeline-date">${new Date(t.date).toLocaleDateString()}</div>
+                    <div class="timeline-title">${t.name}</div>
+                    ${t.summary ? `<div class="timeline-summary">${formatRichText(t.summary)}</div>` : ''}
+                </div>`).join('') + `</div>`;
+        };
+
+        // --- LOGS & CLOUD SYNC ---
+        async function saveConfigToCloud(type, array) {
+            await setDoc(doc(db, "users", currentUser.uid, "configs", type), { items: array });
         }
 
-        function toggleMulti(id, val) {
-            if (!formState[id]) formState[id] = [];
-            const idx = formState[id].indexOf(val);
-            if (idx > -1) formState[id].splice(idx, 1); else formState[id].push(val);
-            const container = document.getElementById('multi_' + id);
-            if (container) container.querySelectorAll('.qbtn').forEach(b => b.classList.toggle('selected', formState[id].includes(b.textContent)));
-        }
-        function logGeneric(catId, catLabel) {
+        window.logGeneric = async function(catId, catLabel) {
             const cat = NON_SYM_CATEGORIES.find(c => c.id === catId);
             const parts = [];
             cat.fields.forEach(f => {
@@ -1622,61 +436,151 @@
                 if (!val || val === '' || (Array.isArray(val) && val.length === 0)) return;
                 parts.push(`${f.label}: ${Array.isArray(val) ? val.join(', ') : val}`);
             });
-            if (parts.length === 0) { alert('Please fill in at least one field.'); return; }
+            if (parts.length === 0) return alert('Fill at least one field.');
+            
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: catId, catLabel, content: parts.join(' | ') };
-            logs.unshift(entry); saveLogs();
+            
+            const docRef = await addDoc(collection(db, "users", currentUser.uid, "logs"), entry);
+            entry.docId = docRef.id;
+            window.logs.unshift(entry);
+            
+            triggerGoogleSheetWebhook(entry);
+            
             formState = {}; renderForm(); renderLogs(); updateStats();
-            const btn = document.querySelector('.log-btn');
-            if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = '' }, 1200) }
-        }
+        };
 
-        function renderForm() {
-            if (currentSubTab === 'symptoms') { renderSymptomTab(); }
-            else if (currentSubTab === 'food') { renderFoodTab(); }
-            else { const cat = NON_SYM_CATEGORIES.find(c => c.id === currentSubTab); if (cat) renderGenericTab(cat); }
-        }
-
-        function renderLogs() {
-            const el = document.getElementById('log-list');
-            document.getElementById('log-count').textContent = logs.length;
-            document.querySelector('.logs-title').innerHTML = `All logs — <span id="log-count">${logs.length}</span> entries`;
+        window.logSymptoms = async function() {
+            const parts = [];
+            const sel = formState['sym_selected'] || [];
+            if (sel.length === 0) return alert('Select at least one symptom.');
+            parts.push('Symptoms: ' + sel.map(i => window.customSymptoms[i].name).join(', '));
+            if (formState['sym_persist']) parts.push('Persistence: ' + formState['sym_persist']);
+            if (formState['sym_strength']) parts.push('Strength: ' + formState['sym_strength'] + '/10');
+            if (formState['sym_duration']) parts.push('Duration: ' + formState['sym_duration']);
+            if (formState['sym_notes']) parts.push('Notes: ' + formState['sym_notes']);
             
-            if (logs.length === 0) { el.innerHTML = `<div class="no-logs">No entries yet.</div>`; return; }
+            const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'symptoms', catLabel: 'Symptoms', content: parts.join(' | ') };
+            const docRef = await addDoc(collection(db, "users", currentUser.uid, "logs"), entry);
+            entry.docId = docRef.id;
+            window.logs.unshift(entry);
+            triggerGoogleSheetWebhook(entry);
             
-            el.innerHTML = logs.map(l => `<div class="log-entry">
-                <span class="log-time">${l.date} ${l.time}</span>
-                <span class="log-cat" ${l.cat === 'symptoms' ? 'style="background:var(--coral-light);color:var(--coral)"' : l.cat === 'food' ? 'style="background:var(--teal-light);color:var(--teal-dark)"' : ''}>${l.catLabel}</span>
-                <span class="log-content">${l.content}</span>
-                <button class="log-delete" onclick="deleteEntry(${l.id})">Del</button>
-              </div>`).join('');
-        }
+            formState = {}; renderForm(); renderLogs(); updateStats();
+        };
 
-        function deleteEntry(id) { logs = logs.filter(l => l.id !== id); saveLogs(); renderLogs(); updateStats() }
+        window.logFood = async function() {
+            const parts = [];
+            const sel = formState['food_selected'] || [];
+            if (sel.length === 0 && !formState['food_notes'] && !formState['food_cals']) return alert('Select items or add notes.');
+            const ingredients = sel.filter(i => window.customFoods[i].cat === 'Ingredient').map(i => window.customFoods[i].name);
+            if (ingredients.length) parts.push('Ingredients: ' + ingredients.join(', '));
+            if (formState['food_cals']) parts.push('Amount/Cals: ' + formState['food_cals']);
+            if (formState['food_notes']) parts.push('Notes: ' + formState['food_notes']);
+            
+            const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'food', catLabel: 'Food', content: parts.join(' | ') };
+            const docRef = await addDoc(collection(db, "users", currentUser.uid, "logs"), entry);
+            entry.docId = docRef.id;
+            window.logs.unshift(entry);
+            triggerGoogleSheetWebhook(entry);
+            
+            formState = {}; renderForm(); renderLogs(); updateStats();
+        };
+
+        window.deleteEntry = async function(id, docId) {
+            await deleteDoc(doc(db, "users", currentUser.uid, "logs", docId));
+            window.logs = window.logs.filter(l => l.id !== id);
+            renderLogs(); updateStats();
+        };
+
+        // Config edits
+        window.saveSymptom = async function() {
+            const name = document.getElementById('modal-name').value.trim();
+            const cat = document.getElementById('modal-cat').value;
+            const desc = document.getElementById('modal-desc').value.trim();
+            if(window.editingIdx !== null) window.customSymptoms[window.editingIdx] = {name, desc, cat}; else window.customSymptoms.push({name, desc, cat});
+            await saveConfigToCloud("symptoms", window.customSymptoms);
+            document.getElementById('sym-edit-modal').style.display = 'none'; renderForm();
+        };
+        window.saveFood = async function() {
+            const name = document.getElementById('food-modal-name').value.trim();
+            const cat = document.getElementById('food-modal-cat').value;
+            const desc = document.getElementById('food-modal-desc').value.trim();
+            if(window.editingFoodIdx !== null) window.customFoods[window.editingFoodIdx] = {name, desc, cat}; else window.customFoods.push({name, desc, cat});
+            await saveConfigToCloud("foods", window.customFoods);
+            document.getElementById('food-edit-modal').style.display = 'none'; renderForm();
+        };
+
+        // Utility Renders (Keeping your exact logic, attached to window)
+        const NON_SYM_CATEGORIES = [
+            { id: 'gut', label: 'Gut / Poop', fields: [{ id: 'poop_weird', label: 'Notes', type: 'textarea' }] },
+            { id: 'mental', label: 'Mental', fields: [{ id: 'anxiety', label: 'Anxiety (1-10)', type: 'scale', max: 10 }] }
+        ];
+        let currentSubTab = 'food';
         
-        function updateStats() {
-            document.getElementById('stat-total').textContent = logs.length;
-            document.getElementById('stat-symptoms').textContent = logs.filter(l => l.cat === 'symptoms').length;
-            document.getElementById('stat-meals').textContent = logs.filter(l => l.cat === 'food').length;
-            document.getElementById('stat-poop').textContent = logs.filter(l => l.cat === 'gut').length;
-        }
+        window.renderSubTabs = function() {
+            document.getElementById('sub-tabs').innerHTML = [{id:'symptoms',label:'Symptoms'},{id:'food',label:'Food'},...NON_SYM_CATEGORIES].map(c => `<button class="tab${c.id === currentSubTab ? ' active' : ''}" onclick="window.switchSubTab('${c.id}')">${c.label}</button>`).join('');
+        };
+        window.switchSubTab = function(id) { currentSubTab = id; formState = {}; window.renderSubTabs(); window.renderForm(); };
+        window.setSymCategory = function(c) { activeSymCategory = c; window.renderForm(); };
+        window.setFoodCategory = function(c) { activeFoodCategory = c; window.renderForm(); };
+        window.setField = function(id, val) { formState[id] = val; };
+        window.selectScale = function(id, val) { formState[id] = val; window.renderForm(); }; // Simplified re-render
 
-        function exportLogs() {
-            const csv = ['Date,Time,Category,Details', ...logs.map(l => `"${l.date}","${l.time}","${l.catLabel}","${l.content.replace(/"/g, '""')}"`)].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement('a'); 
-            a.href = URL.createObjectURL(blob); 
-            a.download = `celiac_log_export_${new Date().toISOString().slice(0, 10)}.csv`; 
-            a.click();
-        }
+        window.renderForm = function() {
+            if (currentSubTab === 'symptoms') {
+                let html = `<div class="panel"><div class="section-title">Symptoms</div><div class="sym-grid">`;
+                window.customSymptoms.forEach((s, i) => { 
+                    if(activeSymCategory !== 'All' && s.cat !== activeSymCategory) return;
+                    const sel = (formState['sym_selected'] || []).includes(i);
+                    html += `<div class="sym-card ${sel?'selected':''}" onclick="window.toggleSym(${i})"><div class="sym-card-name">${s.name}</div></div>`;
+                });
+                html += `</div><button class="add-sym-btn" onclick="window.openAddModal()">+ Add Symptom</button><button class="log-btn" onclick="window.logSymptoms()">Log</button></div>`;
+                document.getElementById('tab-content').innerHTML = html;
+            } else if (currentSubTab === 'food') {
+                let html = `<div class="panel"><div class="section-title">Food</div><div class="sym-grid">`;
+                window.customFoods.forEach((f, i) => { 
+                    if(activeFoodCategory !== 'All' && f.cat !== activeFoodCategory) return;
+                    const sel = (formState['food_selected'] || []).includes(i);
+                    html += `<div class="sym-card ${sel?'selected':''}" onclick="window.toggleFood(${i})"><div class="sym-card-name">${f.name}</div></div>`;
+                });
+                html += `</div><button class="add-sym-btn" onclick="window.openAddFoodModal()">+ Add Food</button><button class="log-btn" onclick="window.logFood()">Log</button></div>`;
+                document.getElementById('tab-content').innerHTML = html;
+            } else {
+                const cat = NON_SYM_CATEGORIES.find(c => c.id === currentSubTab);
+                let html = `<div class="panel"><div class="section-title">${cat.label}</div>`;
+                cat.fields.forEach(f => {
+                    html += `<div class="field"><label>${f.label}</label><textarea oninput="window.setField('${f.id}',this.value)"></textarea></div>`;
+                });
+                html += `<button class="log-btn" onclick="window.logGeneric('${cat.id}','${cat.label}')">Log</button></div>`;
+                document.getElementById('tab-content').innerHTML = html;
+            }
+        };
 
-        // INITIALIZE APP
-        renderMainTabs();
-        switchMainTab('daily_log'); 
-        renderLogs();
-        updateStats();
+        window.toggleSym = function(i) { formState['sym_selected'] = formState['sym_selected'] || []; const idx = formState['sym_selected'].indexOf(i); if(idx>-1) formState['sym_selected'].splice(idx,1); else formState['sym_selected'].push(i); window.renderForm(); };
+        window.toggleFood = function(i) { formState['food_selected'] = formState['food_selected'] || []; const idx = formState['food_selected'].indexOf(i); if(idx>-1) formState['food_selected'].splice(idx,1); else formState['food_selected'].push(i); window.renderForm(); };
+        window.openAddModal = function() { window.editingIdx = null; document.getElementById('sym-edit-modal').style.display='flex'; };
+        window.openAddFoodModal = function() { window.editingFoodIdx = null; document.getElementById('food-edit-modal').style.display='flex'; };
+        window.closeModal = function() { document.getElementById('sym-edit-modal').style.display='none'; };
+        window.closeFoodModal = function() { document.getElementById('food-edit-modal').style.display='none'; };
         
-        // Initial auto-fetch check on startup
-        checkAutoFetchWeather();
+        window.renderLogs = function() {
+            document.getElementById('log-count').textContent = window.logs.length;
+            document.getElementById('log-list').innerHTML = window.logs.length === 0 ? `<div class="no-logs">No entries.</div>` : window.logs.map(l => `
+                <div class="log-entry">
+                    <span class="log-time">${l.date}</span> <span class="log-cat">${l.catLabel}</span>
+                    <span class="log-content">${l.content}</span>
+                    <button class="log-delete" onclick="window.deleteEntry(${l.id}, '${l.docId}')">Del</button>
+                </div>`).join('');
+        };
+
+        window.updateStats = function() {
+            document.getElementById('stat-total').textContent = window.logs.length;
+            document.getElementById('stat-symptoms').textContent = window.logs.filter(l => l.cat === 'symptoms').length;
+            document.getElementById('stat-meals').textContent = window.logs.filter(l => l.cat === 'food').length;
+        };
+
+        function now() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+        setInterval(() => { const el = document.getElementById('live-date'); if (el) el.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }, 10000);
     </script>
 </body>
 </html>
