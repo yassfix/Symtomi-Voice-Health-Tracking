@@ -239,13 +239,17 @@
     </div>
 
     <script type="module">
-        // Consolidate imports to use the v10.8.1 CDN links native to browsers
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
         import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // Single declaration of your exact configuration
+        // Moved these up to ensure the catch block has safe access to them if database fails
+        const DEFAULT_SYMPTOMS = [{ name: "Ectopic / skipped heartbeats", cat: "Heart", desc: "Short episodes..." }, { name: "Brain fog", cat: "Neurological", desc: "Difficulty concentrating" }];
+        const DEFAULT_FOODS = [{ name: "turkey breast", cat: "Ingredient", desc: "" }, { name: "apple", cat: "Ingredient", desc: "" }];
+        const SYMPTOM_CATEGORIES = ['All', 'Heart', 'Breathing', 'Upper GI', 'Lower GI', 'Neurological', 'Ears / Mouth', 'Muscle/Nerve', 'General'];
+        const FOOD_CATEGORIES = ['All', 'Ingredient', 'Cookware', 'Location', 'Soap'];
+
         const firebaseConfig = {
             apiKey: "AIzaSyDH6cmBjvnQ8o2kNpC52VROxRE7tyU-a_4",
             authDomain: "symtomi-voice-health-tracking.firebaseapp.com",
@@ -256,23 +260,20 @@
             measurementId: "G-7EPLL3YQE6"
         };
         
-        const WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL"; // Paste from Phase 5 here if you have one
+        const WEBHOOK_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL"; 
 
-        // Initialize Firebase services
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const auth = getAuth(app);
         const db = getFirestore(app);
         let currentUser = null;
 
-        // Make global states accessible
         window.logs = [];
         window.testsList = [];
         window.customSymptoms = [];
         window.customFoods = [];
         let formState = {};
 
-        // === AUTHENTICATION ===
         const provider = new GoogleAuthProvider();
         window.signIn = async () => { try { await signInWithPopup(auth, provider); } catch(e) { console.error("Login Error:", e); } };
         window.signOutUser = async () => { await signOut(auth); };
@@ -290,43 +291,53 @@
             }
         });
 
-        // === FIREBASE SYNC FUNCTIONS ===
+        // FIXED: Now wrapped in try/catch/finally to prevent silent rendering failures
         async function loadAllDataFromCloud() {
             if (!currentUser) return;
             const uid = currentUser.uid;
 
-            // Load Profile
-            const profileSnap = await getDoc(doc(db, "users", uid, "profile", "main"));
-            if(profileSnap.exists()) {
-                const bgInfo = profileSnap.data();
-                document.getElementById('bg-general').value = bgInfo.general || '';
-                document.getElementById('bg-mission').value = bgInfo.mission || '';
-                document.getElementById('bg-lifestyle').value = bgInfo.lifestyle || '';
+            try {
+                // Load Profile
+                const profileSnap = await getDoc(doc(db, "users", uid, "profile", "main"));
+                if(profileSnap.exists()) {
+                    const bgInfo = profileSnap.data();
+                    document.getElementById('bg-general').value = bgInfo.general || '';
+                    document.getElementById('bg-mission').value = bgInfo.mission || '';
+                    document.getElementById('bg-lifestyle').value = bgInfo.lifestyle || '';
+                }
+
+                // Load Configs (Symptoms & Foods)
+                const symSnap = await getDoc(doc(db, "users", uid, "configs", "symptoms"));
+                window.customSymptoms = symSnap.exists() ? symSnap.data().items : [...DEFAULT_SYMPTOMS];
+                
+                const foodSnap = await getDoc(doc(db, "users", uid, "configs", "foods"));
+                window.customFoods = foodSnap.exists() ? foodSnap.data().items : [...DEFAULT_FOODS];
+
+                // Load Logs
+                window.logs = [];
+                const logsSnap = await getDocs(collection(db, "users", uid, "logs"));
+                logsSnap.forEach(doc => { window.logs.push({ ...doc.data(), docId: doc.id }); });
+                window.logs.sort((a,b) => b.id - a.id); // Sort by timestamp DESC
+
+                // Load Tests
+                window.testsList = [];
+                const testsSnap = await getDocs(collection(db, "users", uid, "tests"));
+                testsSnap.forEach(doc => { window.testsList.push({ ...doc.data(), docId: doc.id }); });
+
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                window.customSymptoms = [...DEFAULT_SYMPTOMS];
+                window.customFoods = [...DEFAULT_FOODS];
+                window.logs = [];
+                window.testsList = [];
+                console.warn("Could not sync with the database. Using default fallback data.");
+            } finally {
+                // Guaranteed to run, drawing the UI on the screen
+                renderMainTabs();
+                switchMainTab('daily_log'); 
+                renderLogs();
+                updateStats();
             }
-
-            // Load Configs (Symptoms & Foods)
-            const symSnap = await getDoc(doc(db, "users", uid, "configs", "symptoms"));
-            window.customSymptoms = symSnap.exists() ? symSnap.data().items : [...DEFAULT_SYMPTOMS];
-            
-            const foodSnap = await getDoc(doc(db, "users", uid, "configs", "foods"));
-            window.customFoods = foodSnap.exists() ? foodSnap.data().items : [...DEFAULT_FOODS];
-
-            // Load Logs
-            window.logs = [];
-            const logsSnap = await getDocs(collection(db, "users", uid, "logs"));
-            logsSnap.forEach(doc => { window.logs.push({ ...doc.data(), docId: doc.id }); });
-            window.logs.sort((a,b) => b.id - a.id); // Sort by timestamp DESC
-
-            // Load Tests
-            window.testsList = [];
-            const testsSnap = await getDocs(collection(db, "users", uid, "tests"));
-            testsSnap.forEach(doc => { window.testsList.push({ ...doc.data(), docId: doc.id }); });
-
-            // Initialize UI
-            renderMainTabs();
-            switchMainTab('daily_log'); 
-            renderLogs();
-            updateStats();
         }
 
         async function triggerGoogleSheetWebhook(entry) {
@@ -340,14 +351,6 @@
             } catch(e) { console.error("Webhook failed:", e); }
         }
 
-        // ==========================================
-        // ALL EXISTING LOGIC RE-MAPPED TO FIREBASE
-        // ==========================================
-
-        const DEFAULT_SYMPTOMS = [{ name: "Ectopic / skipped heartbeats", cat: "Heart", desc: "Short episodes..." }, { name: "Brain fog", cat: "Neurological", desc: "Difficulty concentrating" }];
-        const DEFAULT_FOODS = [{ name: "turkey breast", cat: "Ingredient", desc: "" }, { name: "apple", cat: "Ingredient", desc: "" }];
-        const SYMPTOM_CATEGORIES = ['All', 'Heart', 'Breathing', 'Upper GI', 'Lower GI', 'Neurological', 'Ears / Mouth', 'Muscle/Nerve', 'General'];
-        const FOOD_CATEGORIES = ['All', 'Ingredient', 'Cookware', 'Location', 'Soap'];
         let activeSymCategory = 'General';
         let activeFoodCategory = 'All';
 
@@ -373,7 +376,6 @@
             else if (id === 'tests') { renderTestsTimeline(); }
         };
 
-        // --- BACKGROUND ---
         window.saveBackground = async function(btn) {
             const bgInfo = {
                 general: document.getElementById('bg-general').value.trim(),
@@ -385,7 +387,6 @@
             setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--amber)' }, 1200);
         };
 
-        // --- TESTS ---
         window.saveTest = async function() {
             const name = document.getElementById('test-name').value.trim();
             const date = document.getElementById('test-date').value;
@@ -394,7 +395,6 @@
 
             const newTest = { id: Date.now(), name, date, summary, fileName: document.getElementById('test-file').files[0]?.name || null };
             
-            // Save to Firebase
             const docRef = await addDoc(collection(db, "users", currentUser.uid, "tests"), newTest);
             newTest.docId = docRef.id;
             
@@ -423,7 +423,6 @@
                 </div>`).join('') + `</div>`;
         };
 
-        // --- LOGS & CLOUD SYNC ---
         async function saveConfigToCloud(type, array) {
             await setDoc(doc(db, "users", currentUser.uid, "configs", type), { items: array });
         }
@@ -492,7 +491,6 @@
             renderLogs(); updateStats();
         };
 
-        // Config edits
         window.saveSymptom = async function() {
             const name = document.getElementById('modal-name').value.trim();
             const cat = document.getElementById('modal-cat').value;
@@ -510,7 +508,6 @@
             document.getElementById('food-edit-modal').style.display = 'none'; renderForm();
         };
 
-        // Utility Renders (Keeping your exact logic, attached to window)
         const NON_SYM_CATEGORIES = [
             { id: 'gut', label: 'Gut / Poop', fields: [{ id: 'poop_weird', label: 'Notes', type: 'textarea' }] },
             { id: 'mental', label: 'Mental', fields: [{ id: 'anxiety', label: 'Anxiety (1-10)', type: 'scale', max: 10 }] }
@@ -524,7 +521,7 @@
         window.setSymCategory = function(c) { activeSymCategory = c; window.renderForm(); };
         window.setFoodCategory = function(c) { activeFoodCategory = c; window.renderForm(); };
         window.setField = function(id, val) { formState[id] = val; };
-        window.selectScale = function(id, val) { formState[id] = val; window.renderForm(); }; // Simplified re-render
+        window.selectScale = function(id, val) { formState[id] = val; window.renderForm(); };
 
         window.renderForm = function() {
             if (currentSubTab === 'symptoms') {
