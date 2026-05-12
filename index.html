@@ -306,6 +306,25 @@
         let userId = null;
         let userDocRef = null;
 
+        // ====== GOOGLE SHEETS SYNC ======
+        const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby01d33TlIyf4fMk0omQwmSP23Gywod2kTr80rYJemvkLDtTNqOav4DAv2KWUcgCP1S/exec";
+
+        function syncToGoogleSheet(entry) {
+            if (!GOOGLE_SHEETS_WEB_APP_URL || GOOGLE_SHEETS_WEB_APP_URL.includes("YOUR_WEB_APP_URL_HERE")) return;
+            
+            fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Bypasses browser CORS checks for a seamless background sync
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    date: entry.date,
+                    time: entry.time,
+                    catLabel: entry.catLabel,
+                    content: entry.content
+                })
+            }).catch(err => console.error("Sheets sync error:", err));
+        }
+
         // ====== AUTHENTICATION LOGIC ======
         function signIn() {
             auth.signInWithPopup(provider).catch(error => alert("Login error: " + error.message));
@@ -827,6 +846,7 @@
 
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'food', catLabel: 'Food', content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
             if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--teal)' }, 1200) }
@@ -946,6 +966,7 @@
             if (formState['sym_notes']) parts.push('Notes: ' + formState['sym_notes']);
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'symptoms', catLabel: 'Symptoms', content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
             checkAutoFetchWeather();
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
@@ -1044,6 +1065,7 @@
             if (parts.length === 0) { alert('Please fill in at least one field.'); return; }
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: catId, catLabel, content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
             if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = '' }, 1200) }
