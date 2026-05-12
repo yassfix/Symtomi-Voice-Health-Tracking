@@ -323,7 +323,7 @@
         .log-entry {
             display: flex;
             gap: 10px;
-            padding: 8px;
+            padding: 12px 8px;
             border-radius: 8px;
             border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15));
             margin-bottom: 6px;
@@ -1016,7 +1016,8 @@
                     date: entry.date,
                     time: entry.time,
                     catLabel: entry.catLabel,
-                    content: entry.content
+                    content: entry.content,
+                    audioUrl: entry.audioUrl || "" // ADDED AUDIO URL
                 })
             }).catch(err => console.error("Sheets sync error:", err));
         }
@@ -1038,12 +1039,12 @@
                 userDocRef = db.collection('users').doc(userId);
 
                 authContainer.innerHTML = `
-                        <div class="user-profile">
-                            <img src="${user.photoURL || 'https://via.placeholder.com/20'}" alt="Pic">
-                            <span>${user.displayName.split(' ')[0] || 'User'}</span>
-                        </div>
-                        <button class="auth-btn logout-btn" onclick="signOut()">Log out</button>
-                    `;
+                            <div class="user-profile">
+                                <img src="${user.photoURL || 'https://via.placeholder.com/20'}" alt="Pic">
+                                <span>${user.displayName.split(' ')[0] || 'User'}</span>
+                            </div>
+                            <button class="auth-btn logout-btn" onclick="signOut()">Log out</button>
+                        `;
             } else {
                 userId = localStorage.getItem('celiac_user_id');
                 if (!userId) {
@@ -1053,8 +1054,8 @@
                 userDocRef = db.collection('users').doc(userId);
 
                 authContainer.innerHTML = `
-                        <button class="auth-btn" onclick="signIn()">Sign in with Google</button>
-                    `;
+                            <button class="auth-btn" onclick="signIn()">Sign in with Google</button>
+                        `;
             }
 
             loadUserDataFromFirebase();
@@ -1111,12 +1112,12 @@
                 });
 
                 display.innerHTML = `
-                        <div style="background:var(--blue-light); padding:16px; border-radius:12px; border:1px dashed var(--blue); display:inline-block;">
-                            <div style="font-size:13px; color:var(--blue); margin-bottom:8px;">Send this exact message to your Telegram Bot:</div>
-                            <div style="font-size:24px; font-weight:bold; letter-spacing:2px; color:var(--teal-dark); background:#fff; padding:8px 16px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); user-select:all;">/start ${code}</div>
-                            <div style="font-size:11px; color:var(--gray); margin-top:8px;">Code expires in 10 minutes.</div>
-                        </div>
-                    `;
+                            <div style="background:var(--blue-light); padding:16px; border-radius:12px; border:1px dashed var(--blue); display:inline-block;">
+                                <div style="font-size:13px; color:var(--blue); margin-bottom:8px;">Send this exact message to your Telegram Bot:</div>
+                                <div style="font-size:24px; font-weight:bold; letter-spacing:2px; color:var(--teal-dark); background:#fff; padding:8px 16px; border-radius:8px; border:1px solid rgba(0,0,0,0.1); user-select:all;">/start ${code}</div>
+                                <div style="font-size:11px; color:var(--gray); margin-top:8px;">Code expires in 10 minutes.</div>
+                            </div>
+                        `;
             } catch (error) {
                 console.error("Error generating code:", error);
                 display.innerHTML = '<span style="color:var(--red)">Error generating code. Please check your internet connection or Firebase permissions.</span>';
@@ -1212,15 +1213,15 @@
                 const dateString = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
                 let fileHtml = t.fileName ? `<div class="timeline-file">📎 ${t.fileName}</div>` : '';
                 return `
-                    <div class="timeline-item">
-                        <div style="position: absolute; right: 10px; top: 10px;">
-                            <button class="log-delete" onclick="deleteTest(${t.id})">Del</button>
-                        </div>
-                        <div class="timeline-date">${dateString}</div>
-                        <div class="timeline-title">${t.name}</div>
-                        ${t.summary ? `<div class="timeline-summary">${formatRichText(t.summary)}</div>` : ''}
-                        ${fileHtml}
-                    </div>`;
+                        <div class="timeline-item">
+                            <div style="position: absolute; right: 10px; top: 10px;">
+                                <button class="log-delete" onclick="deleteTest(${t.id})">Del</button>
+                            </div>
+                            <div class="timeline-date">${dateString}</div>
+                            <div class="timeline-title">${t.name}</div>
+                            ${t.summary ? `<div class="timeline-summary">${formatRichText(t.summary)}</div>` : ''}
+                            ${fileHtml}
+                        </div>`;
             }).join('') + `</div>`;
         }
 
@@ -1516,14 +1517,14 @@
                     descHtml += `<div class="read-more" style="color:var(--teal);font-size:10px;font-weight:bold;cursor:pointer;margin-top:4px;pointer-events:auto;display:inline-block;" onclick="event.stopPropagation(); openFoodDescModal(${i})">Read more / View details</div>`;
                 }
                 html += `<div class="sym-card${sel ? ' selected' : ''}" id="foodcard_${i}"
-                     style="${sel ? 'border-color:var(--teal);background:var(--teal-light)' : ''}"
-                     onmousedown="startFoodPress(${i}, event)" onmouseup="cancelFoodPress()" onmouseleave="cancelFoodPress()"
-                     ontouchstart="startFoodPress(${i}, event)" ontouchend="cancelFoodPress()" ontouchmove="cancelFoodPress()"
-                     onclick="handleFoodCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
-                      <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleFoodExpand(${i})" title="Info">i</button></div>
-                      <div class="sym-card-name" style="${sel ? 'color:var(--teal-dark)' : ''}">${f.name}</div>
-                      <div class="sym-card-desc" style="pointer-events:auto;">${descHtml}</div>
-                    </div>`;
+                         style="${sel ? 'border-color:var(--teal);background:var(--teal-light)' : ''}"
+                         onmousedown="startFoodPress(${i}, event)" onmouseup="cancelFoodPress()" onmouseleave="cancelFoodPress()"
+                         ontouchstart="startFoodPress(${i}, event)" ontouchend="cancelFoodPress()" ontouchmove="cancelFoodPress()"
+                         onclick="handleFoodCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
+                          <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleFoodExpand(${i})" title="Info">i</button></div>
+                          <div class="sym-card-name" style="${sel ? 'color:var(--teal-dark)' : ''}">${f.name}</div>
+                          <div class="sym-card-desc" style="pointer-events:auto;">${descHtml}</div>
+                        </div>`;
             });
             html += `</div>`;
             html += `<button class="add-sym-btn" style="color:var(--teal);border-color:var(--teal)" onclick="openAddFoodModal()" onmouseover="this.style.background='var(--teal-light)'" onmouseout="this.style.background='none'">+ Add ingredient / tool</button>`;
@@ -1579,7 +1580,7 @@
 
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'food', catLabel: 'Food', content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
-            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION CALLED HERE
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
             if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = 'var(--teal)' }, 1200) }
@@ -1648,13 +1649,13 @@
                 if (activeSymCategory !== 'All' && s.cat !== activeSymCategory) return;
                 const sel = Array.isArray(formState['sym_selected']) && formState['sym_selected'].includes(i);
                 html += `<div class="sym-card${sel ? ' selected' : ''}" id="symcard_${i}"
-                     onmousedown="startSymPress(${i}, event)" onmouseup="cancelSymPress()" onmouseleave="cancelSymPress()"
-                     ontouchstart="startSymPress(${i}, event)" ontouchend="cancelSymPress()" ontouchmove="cancelSymPress()"
-                     onclick="handleSymCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
-              <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleSymExpand(${i})" title="Info">i</button></div>
-              <div class="sym-card-name">${s.name}</div>
-              <div class="sym-card-desc">${s.desc}</div>
-            </div>`;
+                         onmousedown="startSymPress(${i}, event)" onmouseup="cancelSymPress()" onmouseleave="cancelSymPress()"
+                         ontouchstart="startSymPress(${i}, event)" ontouchend="cancelSymPress()" ontouchmove="cancelSymPress()"
+                         onclick="handleSymCardClick(${i}, event)" oncontextmenu="event.preventDefault(); return false;">
+                  <div class="sym-card-actions"><button class="sym-icon-btn" onclick="event.stopPropagation();toggleSymExpand(${i})" title="Info">i</button></div>
+                  <div class="sym-card-name">${s.name}</div>
+                  <div class="sym-card-desc">${s.desc}</div>
+                </div>`;
             });
             html += `</div>`;
             html += `<button class="add-sym-btn" onclick="openAddModal()">+ Add symptom type</button>`;
@@ -1699,7 +1700,7 @@
             if (formState['sym_notes']) parts.push('Notes: ' + formState['sym_notes']);
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: 'symptoms', catLabel: 'Symptoms', content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
-            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION CALLED HERE
             checkAutoFetchWeather();
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
@@ -1798,7 +1799,7 @@
             if (parts.length === 0) { alert('Please fill in at least one field.'); return; }
             const entry = { id: Date.now(), time: now(), date: new Date().toLocaleDateString(), cat: catId, catLabel, content: parts.join(' | ') };
             logs.unshift(entry); saveLogs();
-            syncToGoogleSheet(entry); // <--- SYNC FUNCTION ADDED HERE
+            syncToGoogleSheet(entry); // <--- SYNC FUNCTION CALLED HERE
             formState = {}; renderForm(); renderLogs(); updateStats();
             const btn = document.querySelector('.log-btn');
             if (btn) { const orig = btn.innerHTML; btn.innerHTML = 'Logged!'; btn.style.background = '#27500A'; setTimeout(() => { btn.innerHTML = orig; btn.style.background = '' }, 1200) }
@@ -1810,17 +1811,26 @@
             else { const cat = NON_SYM_CATEGORIES.find(c => c.id === currentSubTab); if (cat) renderGenericTab(cat); }
         }
 
+        // ADDED AUDIO PLAYER SUPPORT IN THIS FUNCTION
         function renderLogs() {
             const el = document.getElementById('log-list');
             document.getElementById('log-count').textContent = logs.length;
             document.querySelector('.logs-title').innerHTML = `All logs — <span id="log-count">${logs.length}</span> entries`;
+
             if (logs.length === 0) { el.innerHTML = `<div class="no-logs">No entries yet.</div>`; return; }
-            el.innerHTML = logs.map(l => `<div class="log-entry">
-                    <span class="log-time">${l.date} ${l.time}</span>
-                    <span class="log-cat" ${l.cat === 'symptoms' ? 'style="background:var(--coral-light);color:var(--coral)"' : l.cat === 'food' ? 'style="background:var(--teal-light);color:var(--teal-dark)"' : ''}>${l.catLabel}</span>
-                    <span class="log-content">${l.content}</span>
-                    <button class="log-delete" onclick="deleteEntry(${l.id})">Del</button>
-                  </div>`).join('');
+
+            el.innerHTML = logs.map(l => `
+                    <div class="log-entry">
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 6px;">
+                                <span class="log-time">${l.date} ${l.time}</span>
+                                <span class="log-cat" ${l.cat === 'symptoms' ? 'style="background:var(--coral-light);color:var(--coral)"' : l.cat === 'food' ? 'style="background:var(--teal-light);color:var(--teal-dark)"' : ''}>${l.catLabel}</span>
+                            </div>
+                            <div class="log-content">${l.content}</div>
+                            ${l.audioUrl ? `<div style="margin-top: 8px;"><audio controls src="${l.audioUrl}" style="height: 32px; width: 100%; max-width: 250px;"></audio></div>` : ''}
+                        </div>
+                        <button class="log-delete" onclick="deleteEntry(${l.id})">Del</button>
+                    </div>`).join('');
         }
 
         function deleteEntry(id) { logs = logs.filter(l => l.id !== id); saveLogs(); renderLogs(); updateStats() }
@@ -1832,8 +1842,9 @@
             document.getElementById('stat-poop').textContent = logs.filter(l => l.cat === 'gut').length;
         }
 
+        // ADDED AUDIO URL TO CSV EXPORT
         function exportLogs() {
-            const csv = ['Date,Time,Category,Details', ...logs.map(l => `"${l.date}","${l.time}","${l.catLabel}","${l.content.replace(/"/g, '""')}"`)].join('\n');
+            const csv = ['Date,Time,Category,Details,AudioLink', ...logs.map(l => `"${l.date}","${l.time}","${l.catLabel}","${l.content.replace(/"/g, '""')}","${l.audioUrl || ''}"`)].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
