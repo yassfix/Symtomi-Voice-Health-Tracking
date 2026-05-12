@@ -10,6 +10,16 @@
         .app { max-width: 760px; margin: 0 auto; padding: 8px }
         .header { background: var(--color-background-primary,#fff); border: 0.5px solid var(--color-border-tertiary,rgba(0,0,0,0.15)); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between }
         .header h1 { font-size: 16px; font-weight: 500; color: var(--teal-dark) }
+        
+        /* Auth Styles */
+        .auth-section { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        .auth-controls { display: flex; align-items: center; gap: 8px; }
+        .auth-btn { padding: 5px 12px; border-radius: 6px; border: none; background: var(--blue); color: #fff; cursor: pointer; font-size: 11px; font-weight: 600; transition: opacity 0.2s; }
+        .auth-btn:hover { opacity: 0.9; }
+        .logout-btn { background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-secondary); }
+        .user-profile { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--teal-dark); background: var(--teal-light); padding: 4px 8px; border-radius: 20px; }
+        .user-profile img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+        
         .main-tabs { display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--color-border-tertiary,rgba(0,0,0,0.1)); padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
         .main-tabs::-webkit-scrollbar { display: none; }
         .main-tab { background: none; border: none; font-size: 14px; font-weight: 600; color: var(--color-text-secondary,#666); cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
@@ -50,7 +60,7 @@
         .scale-btn { width: 32px; height: 28px; border-radius: 6px; border: 0.5px solid var(--color-border-secondary,rgba(0,0,0,0.3)); background: var(--color-background-secondary,#f0f0f0); cursor: pointer; font-size: 12px; font-weight: 500; transition: all .15s; display: flex; align-items: center; justify-content: center; }
         .scale-btn:hover { background: var(--teal-light); border-color: var(--teal) }
         .scale-btn.sel { background: var(--teal); color: #fff; border-color: var(--teal) }
-        .export-btn { padding: 6px 14px; border-radius: 8px; border: 0.5px solid var(--teal); background: var(--teal-light); color: var(--teal-dark); cursor: pointer; font-size: 12px; font-weight: 500 }
+        .export-btn { padding: 4px 10px; border-radius: 6px; border: 0.5px solid var(--teal); background: var(--teal-light); color: var(--teal-dark); cursor: pointer; font-size: 11px; font-weight: 600 }
         .stats-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px }
         .stat-card { flex: 1; min-width: 80px; background: var(--color-background-secondary,#f0f0f0); border-radius: 8px; padding: 8px 10px; text-align: center }
         .stat-num { font-size: 20px; font-weight: 500; color: var(--teal-dark) }
@@ -96,6 +106,7 @@
         .rich-text-content b, .rich-text-content strong { font-weight: 700; color: #000; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
@@ -105,9 +116,14 @@
                 <h1>🌿 Celiac Health Tracker</h1>
                 <div style="font-size:11px;color:var(--color-text-secondary,#666);margin-top:2px">Tap any category → fill → Log Entry</div>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-                <div style="font-size:12px;font-weight:500;background:var(--teal-light);color:var(--teal-dark);padding:4px 10px;border-radius:8px" id="live-date"></div>
-                <button class="export-btn" onclick="exportLogs()">↓ Export CSV</button>
+            
+            <div class="auth-section">
+                <div id="auth-container" class="auth-controls"></div>
+                
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="font-size:11px;font-weight:600;background:var(--teal-light);color:var(--teal-dark);padding:4px 8px;border-radius:6px" id="live-date"></div>
+                    <button class="export-btn" onclick="exportLogs()">↓ CSV</button>
+                </div>
             </div>
         </div>
 
@@ -284,15 +300,76 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-        // Generate a local user ID to act as a unique profile for this device/user.
-        let userId = localStorage.getItem('celiac_user_id');
-        if (!userId) {
-            userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('celiac_user_id', userId);
+        let userId = null;
+        let userDocRef = null;
+
+        // ====== AUTHENTICATION LOGIC ======
+        function signIn() {
+            auth.signInWithPopup(provider).catch(error => alert("Login error: " + error.message));
         }
-        const userDocRef = db.collection('users').doc(userId);
 
+        function signOut() {
+            auth.signOut().then(() => {
+                // Refresh to clear old specific user data from screen
+                window.location.reload();
+            });
+        }
+
+        // Listener for authentication state changes
+        auth.onAuthStateChanged(user => {
+            const authContainer = document.getElementById('auth-container');
+            
+            if (user) {
+                // User is signed in.
+                userId = user.uid;
+                userDocRef = db.collection('users').doc(userId);
+                
+                authContainer.innerHTML = `
+                    <div class="user-profile">
+                        <img src="${user.photoURL || 'https://via.placeholder.com/20'}" alt="Pic">
+                        <span>${user.displayName.split(' ')[0] || 'User'}</span>
+                    </div>
+                    <button class="auth-btn logout-btn" onclick="signOut()">Log out</button>
+                `;
+            } else {
+                // No user is signed in. Fall back to local device tracking.
+                userId = localStorage.getItem('celiac_user_id');
+                if (!userId) {
+                    userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('celiac_user_id', userId);
+                }
+                userDocRef = db.collection('users').doc(userId);
+
+                authContainer.innerHTML = `
+                    <button class="auth-btn" onclick="signIn()">Sign in with Google</button>
+                `;
+            }
+
+            // After determining ID (Guest or Auth), fetch data.
+            loadUserDataFromFirebase();
+        });
+
+        function loadUserDataFromFirebase() {
+            if(!userDocRef) return;
+            userDocRef.get().then(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.logs) { logs = data.logs; localStorage.setItem('celiac_logs', JSON.stringify(logs)); }
+                    if (data.tests) { testsList = data.tests; localStorage.setItem('celiac_tests', JSON.stringify(testsList)); }
+                    if (data.symptoms) { customSymptoms = data.symptoms; localStorage.setItem('celiac_symptoms', JSON.stringify(customSymptoms)); }
+                    if (data.foods) { customFoods = data.foods; localStorage.setItem('celiac_foods', JSON.stringify(customFoods)); }
+                    if (data.bgInfo) { localStorage.setItem('celiac_bg', JSON.stringify(data.bgInfo)); if (currentMainTab === 'background') loadBackground(); }
+                }
+                // Refresh UI with latest loaded data
+                renderForm();
+                renderLogs();
+                updateStats();
+                if (currentMainTab === 'tests') renderTestsTimeline();
+            }).catch(console.error);
+        }
 
         // ====== STANDARD APP LOGIC ======
         function formatRichText(text) {
@@ -356,7 +433,7 @@
 
             testsList.push(newTest);
             localStorage.setItem('celiac_tests', JSON.stringify(testsList));
-            userDocRef.set({ tests: testsList }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ tests: testsList }, { merge: true }).catch(console.error); // Sync Firebase
             
             document.getElementById('test-name').value = '';
             document.getElementById('test-date').value = '';
@@ -369,7 +446,7 @@
             if(!confirm("Remove this test from timeline?")) return;
             testsList = testsList.filter(t => t.id !== id);
             localStorage.setItem('celiac_tests', JSON.stringify(testsList));
-            userDocRef.set({ tests: testsList }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ tests: testsList }, { merge: true }).catch(console.error); // Sync Firebase
             renderTestsTimeline();
         }
 
@@ -409,7 +486,7 @@
                 lifestyle: document.getElementById('bg-lifestyle').value.trim()
             };
             localStorage.setItem('celiac_bg', JSON.stringify(bgInfo));
-            userDocRef.set({ bgInfo: bgInfo }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ bgInfo: bgInfo }, { merge: true }).catch(console.error); // Sync Firebase
             
             const orig = btn.innerHTML; 
             btn.innerHTML = 'Saved Successfully!'; 
@@ -463,7 +540,7 @@
         
         function saveSymptoms() { 
             localStorage.setItem('celiac_symptoms', JSON.stringify(customSymptoms));
-            userDocRef.set({ symptoms: customSymptoms }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ symptoms: customSymptoms }, { merge: true }).catch(console.error); // Sync Firebase
         }
 
         const FOOD_CATEGORIES = ['All', 'Ingredient', 'Cookware', 'Location', 'Soap'];
@@ -493,9 +570,8 @@
         
         function saveFoods() { 
             localStorage.setItem('celiac_foods', JSON.stringify(customFoods));
-            userDocRef.set({ foods: customFoods }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ foods: customFoods }, { merge: true }).catch(console.error); // Sync Firebase
         }
-
 
         let currentSubTab = 'food'; 
         let formState = {};
@@ -507,7 +583,7 @@
         
         function saveLogs() { 
             localStorage.setItem('celiac_logs', JSON.stringify(logs));
-            userDocRef.set({ logs: logs }, { merge: true }).catch(console.error); // Sync Firebase
+            if(userDocRef) userDocRef.set({ logs: logs }, { merge: true }).catch(console.error); // Sync Firebase
         }
 
         const NON_SYM_CATEGORIES = [
@@ -1010,51 +1086,12 @@
             a.click();
         }
 
-        // ====== INITIALIZATION AND FIREBASE SYNC ======
-        
-        // 1. Instantly load UI using local storage
+        // INITIAL UI LOAD
         renderMainTabs();
         switchMainTab('daily_log'); 
         renderLogs();
         updateStats();
         checkAutoFetchWeather();
-
-        // 2. Fetch the latest data from Firebase to keep cross-device consistency
-        userDocRef.get().then(doc => {
-            if (doc.exists) {
-                const data = doc.data();
-                
-                if (data.logs) {
-                    logs = data.logs;
-                    localStorage.setItem('celiac_logs', JSON.stringify(logs));
-                }
-                if (data.tests) {
-                    testsList = data.tests;
-                    localStorage.setItem('celiac_tests', JSON.stringify(testsList));
-                }
-                if (data.symptoms) {
-                    customSymptoms = data.symptoms;
-                    localStorage.setItem('celiac_symptoms', JSON.stringify(customSymptoms));
-                }
-                if (data.foods) {
-                    customFoods = data.foods;
-                    localStorage.setItem('celiac_foods', JSON.stringify(customFoods));
-                }
-                if (data.bgInfo) {
-                    localStorage.setItem('celiac_bg', JSON.stringify(data.bgInfo));
-                    if (currentMainTab === 'background') loadBackground();
-                }
-
-                // Refresh the UI with the remote data
-                renderForm();
-                renderLogs();
-                updateStats();
-                if (currentMainTab === 'tests') renderTestsTimeline();
-            }
-        }).catch(error => {
-            console.error("Error fetching data from Firebase:", error);
-        });
-
     </script>
 </body>
 </html>
