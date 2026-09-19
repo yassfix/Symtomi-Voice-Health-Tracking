@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🌿 Gut Health Tracker
+#   Health Tracker
 
-**Turn daily gut symptoms into structured data, so the patterns hiding behind them can finally be found.**
+**Turn symptoms into structured data, so the patterns hiding behind them can finally be found.**
 
-A mobile-first tracker that captures what you eat, how you feel, and everything around it: stress, sleep, meal size, timing, environment. Built for people with celiac disease, SIBO, IBS, or gut symptoms that nobody has explained yet.
+A mobile-first tracker that captures what you eat, how you feel, and everything around it: stress, sleep, meal size, timing, environment
 
 <br>
 
@@ -18,16 +18,13 @@ A mobile-first tracker that captures what you eat, how you feel, and everything 
 
 </div>
 
-<!--
-  📸 Add a screenshot or GIF here, then delete this comment:
-  <p align="center"><img src="docs/screenshot.png" width="360" alt="Gut Health Tracker screenshot"></p>
--->
+
 
 ---
 
 ## 🎯 The Idea
 
-Gut conditions are notoriously hard to pin down. Celiac disease, SIBO and IBS overlap heavily, and many people live for years with symptoms that still have no clear explanation.
+Conditions like celiac disease and SIBO can remain undiagnosed for a long time, and many people live for years with symptoms that still have no clear explanation.
 
 The problem is rarely a lack of advice. It's a **lack of good data**:
 
