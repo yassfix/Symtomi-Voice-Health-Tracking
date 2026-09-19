@@ -4,7 +4,7 @@
 
 **Turn symptoms into structured data, so the patterns hiding behind them can finally be found.**
 
-A mobile-first tracker that captures what you eat, how you feel, and everything around it: stress, sleep, meal size, timing, environment
+A health tracker that captures what you eat, how you feel, and everything around it: stress, sleep, meal size, timing, environment
 
 <br>
 
