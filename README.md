@@ -45,9 +45,7 @@ flowchart LR
 
 ### Who it's for
 
-- People with **celiac disease** tracking cross-contamination and hidden exposures
-- People with **SIBO** or **IBS** looking for triggers and timing patterns
-- People with **undiagnosed or unexplained** digestive symptoms who need data to support the conversation with their doctor
+- People with **undiagnosed or unexplained**  symptoms who need data to support the conversation with their doctor
 - Anyone running an elimination diet who wants to measure the results instead of guessing
 
 ---
