@@ -326,11 +326,6 @@ This app handles **personal health data**, so treat your setup accordingly.
 
 ---
 
-## ⚠️ Disclaimer
-
-This project is a personal data-tracking tool. It is **not a medical device** and does not provide medical advice, diagnosis, or treatment. Patterns found in your data are **hypotheses to discuss with a qualified healthcare professional**, not conclusions. Correlation is not causation. Never change your diet or medication based on this data alone.
-
----
 
 ## 🤝 Contributing
 
